@@ -3,12 +3,7 @@ import Newsletter from "@/components/Newsletter";
 import Motion from "@/components/Motion";
 import Cursor from "@/components/Cursor";
 import Loader from "@/components/Loader";
-import {
-  LilacForest,
-  IconYoutube,
-  IconInstagram,
-  IconTwitter,
-} from "@/components/Art";
+import { IconYoutube, IconInstagram, IconTwitter } from "@/components/Art";
 
 const PRODUCTS = [
   {
@@ -220,14 +215,10 @@ export default function Home() {
         {/* ---------- story ---------- */}
         <section className="section wrap story" id="story">
           <div className="story__media" data-reveal="fade">
-            <span className="story__blob" aria-hidden="true" />
-            <span className="story__forest" aria-hidden="true">
-              <LilacForest />
-            </span>
             <img
               className="story__photo"
-              src="/img/model-face-sm.png"
-              alt="Onie Beauty — natural glow"
+              src="/img/story-woman.jpg"
+              alt="Woman applying Onie Beauty cream"
               loading="lazy"
             />
           </div>

@@ -1083,46 +1083,14 @@ img {
   overflow: hidden;
   background: linear-gradient(150deg, var(--lilac), var(--lilac-soft));
 }
-.story__blob {
-  position: absolute;
-  inset: -25%;
-  z-index: 0;
-  background:
-    radial-gradient(42% 42% at 28% 28%, rgba(201, 179, 236, 0.85), transparent 62%),
-    radial-gradient(46% 46% at 72% 72%, rgba(175, 143, 215, 0.8), transparent 62%),
-    radial-gradient(50% 50% at 60% 30%, rgba(216, 200, 239, 0.7), transparent 62%);
-  filter: blur(14px);
-  animation: orbit 22s ease-in-out infinite;
-}
-.story__forest {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  display: block;
-}
-.story__forest svg {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
 .story__photo {
   position: absolute;
   inset: 0;
-  z-index: 2;
+  z-index: 1;
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: center top;
-}
-.story__media::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  background:
-    radial-gradient(80% 60% at 70% 10%, rgba(216, 200, 239, 0.4), transparent 60%),
-    linear-gradient(180deg, transparent 55%, rgba(143, 111, 199, 0.3));
-  mix-blend-mode: soft-light;
 }
 .story__copy .eyebrow {
   color: var(--violet);
