@@ -728,17 +728,58 @@ img {
   place-items: center;
   padding-block: 1.2rem;
 }
-.card__viz svg,
-.card__viz img {
+.card__product {
+  position: relative;
+  z-index: 2;
   height: clamp(190px, 30vh, 300px);
   width: auto;
   object-fit: contain;
   filter: drop-shadow(0 30px 34px rgba(20, 9, 38, 0.32));
   transition: transform 0.7s var(--ease);
 }
-.card:hover .card__viz svg,
-.card:hover .card__viz img {
-  transform: translateY(-10px) rotate(-2deg) scale(1.05);
+.card:hover .card__product {
+  transform: translateY(-10px) rotate(-2deg) scale(1.04);
+}
+
+/* smear + ingredient cutouts that fan in behind the product on hover */
+.card__behind {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+.card__behind .b {
+  position: absolute;
+  opacity: 0;
+  transform: scale(0.5) rotate(0deg);
+  transform-origin: center;
+  transition: opacity 0.5s var(--ease), transform 0.75s var(--ease);
+}
+.card:hover .card__behind .b {
+  opacity: 1;
+  transform: scale(1) rotate(var(--r, 0deg));
+}
+/* smear sits low/centre-right, the two cutouts peek from the sides */
+.b--smear {
+  width: 36%;
+  left: 32%;
+  top: 42%;
+  --r: -6deg;
+  transition-delay: 0s;
+}
+.b--a {
+  width: 25%;
+  left: 14%;
+  top: 40%;
+  --r: -13deg;
+  transition-delay: 0.06s;
+}
+.b--b {
+  width: 22%;
+  left: 60%;
+  top: 18%;
+  --r: 10deg;
+  transition-delay: 0.12s;
 }
 .card__bottom {
   display: flex;

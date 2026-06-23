@@ -11,8 +11,8 @@ const PRODUCTS = [
     tag: "So fresh & so clean",
     desc: "Hydra-repair day cream that melts into thirsty skin.",
     img: "/img/cream-tube.png",
-    smear: "/img/orange-smear.png",
-    ingredient: "Orange extract",
+    // [smear, ingredient a, ingredient b] revealed behind the product on hover
+    behind: ["/img/smear-orange.png", "/img/ing-orange.png", "/img/ing-orange-peel.png"],
     c1: "rgba(240,150,70,0.85)",
   },
   {
@@ -20,8 +20,7 @@ const PRODUCTS = [
     tag: "You got that yummy-yum",
     desc: "A whipped skin-food balm that drinks in overnight.",
     img: "/img/nourish-jar.png",
-    smear: "/img/cucumber-smear.png",
-    ingredient: "Cucumber gel",
+    behind: ["/img/smear-cucumber.png", "/img/ing-cucumber.png", "/img/ing-mint.png"],
     c1: "rgba(150,190,110,0.8)",
   },
   {
@@ -29,8 +28,7 @@ const PRODUCTS = [
     tag: "Shine bright like a diamond",
     desc: "A vitamin serum that wakes up a dull complexion.",
     img: "/img/serum-tube.png",
-    smear: "/img/saffron-smear.png",
-    ingredient: "Saffron essence",
+    behind: ["/img/smear-saffron.png", "/img/ing-saffron-flower.png", "/img/oil-drop.png"],
     c1: "rgba(200,90,70,0.8)",
   },
 ];
@@ -124,7 +122,17 @@ export default function Home() {
                   <p className="card__tag">{p.tag}</p>
                 </div>
                 <div className="card__viz">
-                  <img src={p.img} alt={`Onie Beauty ${p.name}`} loading="lazy" />
+                  <span className="card__behind" aria-hidden="true">
+                    <img className="b b--smear" src={p.behind[0]} alt="" loading="lazy" />
+                    <img className="b b--a" src={p.behind[1]} alt="" loading="lazy" />
+                    <img className="b b--b" src={p.behind[2]} alt="" loading="lazy" />
+                  </span>
+                  <img
+                    className="card__product"
+                    src={p.img}
+                    alt={`Onie Beauty ${p.name}`}
+                    loading="lazy"
+                  />
                 </div>
                 <div className="card__bottom">
                   <p className="card__desc">{p.desc}</p>
