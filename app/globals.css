@@ -416,30 +416,30 @@ img {
   opacity: 0.85;
 }
 .hero__fallback::before {
-  width: 78vw;
-  height: 52vh;
-  top: 10%;
-  left: -4%;
-  opacity: 0.7;
-  animation: orbit 24s ease-in-out infinite;
+  width: 80vw;
+  height: 56vh;
+  top: 8%;
+  left: -6%;
+  opacity: 0.75;
+  animation: orbit 16s ease-in-out infinite;
 }
 .hero__fallback::after {
-  width: 60vw;
-  height: 40vh;
-  bottom: 4%;
-  right: -4%;
-  opacity: 0.55;
-  animation: orbit 30s ease-in-out infinite reverse;
+  width: 64vw;
+  height: 44vh;
+  bottom: 2%;
+  right: -6%;
+  opacity: 0.6;
+  animation: orbit 20s ease-in-out infinite reverse;
 }
 @keyframes orbit {
   0% {
     transform: translate(0, 0) scale(1) rotate(0deg);
   }
   33% {
-    transform: translate(8%, 6%) scale(1.12) rotate(4deg);
+    transform: translate(16%, 10%) scale(1.22) rotate(6deg);
   }
   66% {
-    transform: translate(-6%, 10%) scale(0.94) rotate(-3deg);
+    transform: translate(-12%, 18%) scale(0.84) rotate(-5deg);
   }
   100% {
     transform: translate(0, 0) scale(1) rotate(0deg);

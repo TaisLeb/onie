@@ -44,10 +44,16 @@ export default function Liquid() {
         renderer = new THREE.WebGLRenderer({
           antialias: true,
           alpha: true,
-          powerPreference: "high-performance",
+          failIfMajorPerformanceCaveat: false,
         });
       } catch (err) {
         console.warn("[Liquid] WebGL renderer failed, using fallback:", err);
+        return;
+      }
+
+      const glctx = renderer.getContext();
+      if (!glctx || glctx.isContextLost()) {
+        console.warn("[Liquid] WebGL context unavailable at init, using fallback");
         return;
       }
 
@@ -77,9 +83,17 @@ export default function Liquid() {
       mesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material);
       scene.add(mesh);
 
-      setWebgl(true); // reveal canvas, gently fade out fallback via CSS opacity
-      // canvas is opaque on top, so stop painting/animating the fallback glows
-      document.documentElement.classList.add("webgl-on");
+      setWebgl(true); // reveal canvas (it's transparent until the first draw)
+
+      // if the GPU drops the context, gracefully return to the animated fallback
+      const canvasEl = renderer.domElement;
+      canvasEl.addEventListener("webglcontextlost", (e) => {
+        e.preventDefault();
+        console.warn("[Liquid] WebGL context lost → reverting to fallback");
+        document.documentElement.classList.remove("webgl-on");
+        setWebgl(false);
+        if (mount && mount._stop) mount._stop();
+      });
 
       const target = { x: 0.5, y: 0.5 };
       const onMove = (e) => {
@@ -106,6 +120,7 @@ export default function Liquid() {
 
       const t0 = performance.now();
       let running = false;
+      let firstRendered = false;
       const loop = () => {
         if (!running) return;
         raf = requestAnimationFrame(loop);
@@ -116,6 +131,11 @@ export default function Liquid() {
         uniforms.uMouse.value.y +=
           (target.y - uniforms.uMouse.value.y) * 0.045;
         renderer.render(scene, camera);
+        // only hide the fallback glows once we've actually painted a frame
+        if (!firstRendered) {
+          firstRendered = true;
+          document.documentElement.classList.add("webgl-on");
+        }
       };
       const startLoop = () => {
         if (running) return;
@@ -126,6 +146,7 @@ export default function Liquid() {
         running = false;
         cancelAnimationFrame(raf);
       };
+      mount._stop = stopLoop;
 
       // only run while the hero is on-screen and the tab is visible —
       // no point burning GPU on a fullscreen shader you've scrolled past
