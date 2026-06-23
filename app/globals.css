@@ -1050,12 +1050,14 @@ img {
    spotlight panel fits on one screen (height driven, width follows aspect) */
 @media (min-width: 921px) {
   .spotlight__inner {
-    grid-template-columns: 1fr 1fr;
-    gap: clamp(1rem, 2.5vw, 2.5rem);
+    /* text takes all remaining width; video column is exactly the video's
+       width, sitting against the right padding (symmetric to the left) */
+    grid-template-columns: 1fr auto;
+    gap: clamp(2rem, 4vw, 4rem);
     padding-block: clamp(2rem, 4vw, 3.5rem);
   }
   .stage {
-    justify-items: start; /* pull the video toward the text column */
+    justify-items: end;
   }
   .stage__product--video {
     width: auto;
