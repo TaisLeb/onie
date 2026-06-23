@@ -768,18 +768,36 @@ img {
   transition-delay: 0s;
 }
 .b--a {
-  width: 25%;
-  left: 14%;
-  top: 40%;
+  width: 33%;
+  left: 10%;
+  top: 38%;
   --r: -13deg;
   transition-delay: 0.06s;
 }
 .b--b {
-  width: 22%;
-  left: 60%;
-  top: 18%;
+  width: 29%;
+  left: 58%;
+  top: 14%;
   --r: 10deg;
   transition-delay: 0.12s;
+}
+
+/* the Nourish jar is much wider than the tube/serum, so on the 3-column
+   layout spread its accents past the jar's edges (smear lower) to stay visible */
+@media (min-width: 901px) {
+  .card--nourish .b--smear {
+    width: 50%;
+    left: 26%;
+    top: 52%;
+  }
+  .card--nourish .b--a {
+    left: -6%;
+    top: 44%;
+  }
+  .card--nourish .b--b {
+    left: 72%;
+    top: 22%;
+  }
 }
 .card__bottom {
   display: flex;

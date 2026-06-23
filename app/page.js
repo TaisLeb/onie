@@ -112,7 +112,7 @@ export default function Home() {
           <div className="products__grid" data-reveal="stagger">
             {PRODUCTS.map((p) => (
               <article
-                className="card"
+                className={`card card--${p.name.toLowerCase()}`}
                 key={p.name}
                 style={{ "--c1": p.c1 }}
               >
