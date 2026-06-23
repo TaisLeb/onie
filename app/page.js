@@ -226,7 +226,7 @@ export default function Home() {
             </span>
             <img
               className="story__photo"
-              src="/img/model-face.png"
+              src="/img/model-face-sm.png"
               alt="Onie Beauty — natural glow"
               loading="lazy"
             />

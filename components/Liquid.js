@@ -51,7 +51,8 @@ export default function Liquid() {
         return;
       }
 
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      // soft gradients don't need full retina; cap low to save GPU fill-rate
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       renderer.setPixelRatio(dpr);
       const w = mount.clientWidth || window.innerWidth;
       const h = mount.clientHeight || window.innerHeight;
@@ -77,6 +78,8 @@ export default function Liquid() {
       scene.add(mesh);
 
       setWebgl(true); // reveal canvas, gently fade out fallback via CSS opacity
+      // canvas is opaque on top, so stop painting/animating the fallback glows
+      document.documentElement.classList.add("webgl-on");
 
       const target = { x: 0.5, y: 0.5 };
       const onMove = (e) => {
@@ -102,7 +105,9 @@ export default function Liquid() {
       ro.observe(mount);
 
       const t0 = performance.now();
+      let running = false;
       const loop = () => {
+        if (!running) return;
         raf = requestAnimationFrame(loop);
         uniforms.uTime.value = (performance.now() - t0) / 1000;
         // ease mouse toward target
@@ -112,13 +117,40 @@ export default function Liquid() {
           (target.y - uniforms.uMouse.value.y) * 0.045;
         renderer.render(scene, camera);
       };
-      loop();
+      const startLoop = () => {
+        if (running) return;
+        running = true;
+        raf = requestAnimationFrame(loop);
+      };
+      const stopLoop = () => {
+        running = false;
+        cancelAnimationFrame(raf);
+      };
+
+      // only run while the hero is on-screen and the tab is visible —
+      // no point burning GPU on a fullscreen shader you've scrolled past
+      const io = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting && !document.hidden) startLoop();
+          else stopLoop();
+        },
+        { threshold: 0 }
+      );
+      io.observe(mount);
+      const onVis = () => {
+        if (document.hidden) stopLoop();
+        else if (mount.getBoundingClientRect().bottom > 0) startLoop();
+      };
+      document.addEventListener("visibilitychange", onVis);
+      startLoop();
 
       mount._cleanup = () => {
         window.removeEventListener("pointermove", onMove);
         window.removeEventListener("scroll", onScroll);
+        document.removeEventListener("visibilitychange", onVis);
+        io.disconnect();
         ro && ro.disconnect();
-        cancelAnimationFrame(raf);
+        stopLoop();
         mesh && mesh.geometry.dispose();
         material && material.dispose();
         renderer && renderer.dispose();
@@ -136,6 +168,7 @@ export default function Liquid() {
 
     return () => {
       disposed = true;
+      document.documentElement.classList.remove("webgl-on");
       if (mount && mount._cleanup) mount._cleanup();
     };
   }, []);

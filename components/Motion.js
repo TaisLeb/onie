@@ -173,6 +173,23 @@ export default function Motion() {
           });
         }
 
+        // pause the featured video while it's off-screen (saves decode cost)
+        const video = document.querySelector(".stage__video");
+        if (video) {
+          const vio = new IntersectionObserver(
+            ([entry]) => {
+              if (entry.isIntersecting) {
+                video.play && video.play().catch(() => {});
+              } else {
+                video.pause && video.pause();
+              }
+            },
+            { threshold: 0.1 }
+          );
+          vio.observe(video);
+          cleanupFns.push(() => vio.disconnect());
+        }
+
         // refresh once fonts/layout settle
         requestAnimationFrame(() => ScrollTrigger.refresh());
         const onLoaded = () => ScrollTrigger.refresh();
