@@ -1046,6 +1046,20 @@ img {
   }
 }
 
+/* desktop: cap the featured video to a slice of the viewport so the whole
+   spotlight panel fits on one screen (height driven, width follows aspect) */
+@media (min-width: 921px) {
+  .spotlight__inner {
+    grid-template-columns: 1fr 1fr;
+    padding-block: clamp(2rem, 4vw, 3.5rem);
+  }
+  .stage__product--video {
+    width: auto;
+    max-width: 100%;
+    height: min(62vh, 620px);
+  }
+}
+
 /* ============================================================
    story
    ============================================================ */
