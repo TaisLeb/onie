@@ -397,6 +397,19 @@ img {
   width: 100% !important;
   height: 100% !important;
 }
+/* static portrait fallback on the right (no-WebGL); hidden once shader paints */
+.hero__portrait {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+}
+.webgl-on .hero__portrait {
+  display: none;
+}
 /* static fallback — the real signature lilac glow asset drifting over
    butter. Distinct orbital animation (not Unfold's hue-rotate drift). */
 .hero__fallback {
@@ -481,7 +494,7 @@ img {
   align-items: center;
   gap: 0.8rem;
   margin-bottom: clamp(1.2rem, 3vh, 2rem);
-  color: var(--lilac-deep);
+  color: var(--ink);
 }
 .hero__eyebrow .rule {
   height: 1px;
@@ -490,7 +503,7 @@ img {
   opacity: 0.4;
 }
 .hero__title {
-  font-size: clamp(3.4rem, 13vw, 13rem);
+  font-size: clamp(2.72rem, 10.4vw, 10.4rem);
   font-weight: 300;
 }
 .hero__title em {
@@ -500,11 +513,13 @@ img {
 .hero__title .line2 {
   padding-left: clamp(0rem, 14vw, 9rem);
 }
-.hero__row {
+.hero__lead {
+  position: relative;
+}
+.hero__cta {
   display: flex;
   align-items: flex-end;
-  justify-content: space-between;
-  gap: 2rem;
+  gap: clamp(1.4rem, 3vw, 2.5rem);
   flex-wrap: wrap;
   margin-top: clamp(1.6rem, 4vh, 2.8rem);
 }
@@ -512,7 +527,7 @@ img {
   max-width: 34ch;
   font-size: clamp(0.95rem, 1.2vw, 1.1rem);
   line-height: 1.55;
-  color: var(--ink-soft);
+  color: var(--ink);
 }
 .hero__scroll {
   display: flex;
@@ -521,7 +536,25 @@ img {
   font-size: 0.66rem;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: var(--ink-soft);
+  color: var(--ink);
+}
+/* desktop: keep the copy in a left column so the portrait reveals on the
+   right, with the scroll cue pinned bottom-right */
+@media (min-width: 901px) {
+  .hero__lead {
+    max-width: 52%;
+  }
+  .hero__scroll {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+  }
+}
+@media (max-width: 900px) {
+  .hero__scroll {
+    margin-top: 1.6rem;
+    justify-content: flex-end;
+  }
 }
 .hero__scroll .bar {
   position: relative;
@@ -534,7 +567,7 @@ img {
   content: "";
   position: absolute;
   inset: 0;
-  background: var(--lilac-deep);
+  background: var(--ink);
   transform-origin: left;
   animation: scrollbar 2.2s var(--ease) infinite;
 }
@@ -786,18 +819,38 @@ img {
    layout spread its accents past the jar's edges (smear lower) to stay visible */
 @media (min-width: 901px) {
   .card--nourish .b--smear {
-    width: 50%;
-    left: 26%;
-    top: 52%;
+    width: 33%;
+    left: 34%;
+    top: 54%;
   }
   .card--nourish .b--a {
-    left: -6%;
+    left: 8%;
     top: 44%;
   }
   .card--nourish .b--b {
-    left: 72%;
-    top: 22%;
+    left: 57%;
+    top: 6%;
+    width: 35%;
   }
+}
+
+/* per-product accent tweaks */
+.card--purify .b--smear {
+  width: 43%;
+  left: 28%;
+}
+.card--brighten .b--a {
+  top: 22%;
+}
+.card--brighten .b--smear {
+  width: 31%; /* saffron smear -15% */
+}
+.card--nourish .card__product {
+  height: clamp(162px, 25.5vh, 255px); /* jar -15% */
+}
+.card--brighten .card__product {
+  height: clamp(171px, 27vh, 270px); /* serum -10% */
+  top: 13%; /* push serum down */
 }
 .card__bottom {
   display: flex;
@@ -1314,7 +1367,7 @@ img {
   text-align: center;
   font-family: var(--font-display);
   font-weight: 300;
-  font-size: clamp(4rem, 22vw, 22rem);
+  font-size: clamp(3.2rem, 17.6vw, 17.6rem);
   line-height: 0.8;
   letter-spacing: -0.03em;
   color: var(--cream);

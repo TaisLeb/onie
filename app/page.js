@@ -301,7 +301,7 @@ export default function Home() {
           </div>
         </div>
         <div className="footer__wordmark" data-drift>
-          onie beauty<span className="blob" />
+          onie beauty
         </div>
         <div className="wrap">
           <div className="footer__legal">
