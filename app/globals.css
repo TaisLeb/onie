@@ -1051,12 +1051,17 @@ img {
 @media (min-width: 921px) {
   .spotlight__inner {
     grid-template-columns: 1fr 1fr;
+    gap: clamp(1rem, 2.5vw, 2.5rem);
     padding-block: clamp(2rem, 4vw, 3.5rem);
+  }
+  .stage {
+    justify-items: start; /* pull the video toward the text column */
   }
   .stage__product--video {
     width: auto;
     max-width: 100%;
-    height: min(62vh, 620px);
+    height: min(74vh, 744px);
+    margin-inline: 0;
   }
 }
 
