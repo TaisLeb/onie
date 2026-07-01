@@ -2172,7 +2172,9 @@ img {
     width: 100%;
   }
 }
-@media (max-width: 620px) {
+/* keep the scattered collage down to small tablets; only very small phones
+   fall back to a simple 2-up grid */
+@media (max-width: 440px) {
   .about__ig-grid {
     grid-template-columns: 1fr 1fr;
   }
