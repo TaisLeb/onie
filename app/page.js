@@ -1,37 +1,12 @@
+import Link from "next/link";
 import Hero from "@/components/Hero";
 import Newsletter from "@/components/Newsletter";
 import Motion from "@/components/Motion";
 import Cursor from "@/components/Cursor";
 import Loader from "@/components/Loader";
-import { IconYoutube, IconInstagram, IconTwitter } from "@/components/Art";
-
-const PRODUCTS = [
-  {
-    name: "Purify",
-    tag: "So fresh & so clean",
-    desc: "Hydra-repair day cream that melts into thirsty skin.",
-    img: "/img/cream-tube.png",
-    // [smear, ingredient a, ingredient b] revealed behind the product on hover
-    behind: ["/img/smear-orange.png", "/img/ing-orange.png", "/img/ing-orange-peel.png"],
-    c1: "rgba(240,150,70,0.85)",
-  },
-  {
-    name: "Nourish",
-    tag: "You got that yummy-yum",
-    desc: "A whipped skin-food balm that drinks in overnight.",
-    img: "/img/nourish-jar.png",
-    behind: ["/img/smear-cucumber.png", "/img/ing-cucumber.png", "/img/ing-mint.png"],
-    c1: "rgba(150,190,110,0.8)",
-  },
-  {
-    name: "Brighten",
-    tag: "Shine bright like a diamond",
-    desc: "A vitamin serum that wakes up a dull complexion.",
-    img: "/img/serum-tube.png",
-    behind: ["/img/smear-saffron.png", "/img/ing-saffron-flower.png", "/img/oil-drop.png"],
-    c1: "rgba(200,90,70,0.8)",
-  },
-];
+import Nav from "@/components/Nav";
+import Footer from "@/components/Footer";
+import { PRODUCTS } from "@/lib/products";
 
 export default function Home() {
   return (
@@ -39,34 +14,7 @@ export default function Home() {
       <Loader />
       <Cursor />
       <Motion />
-
-      {/* ---------- nav ---------- */}
-      <header className="nav">
-        <div className="nav__side">
-          <button className="nav__burger" aria-label="Menu">
-            <span />
-            <span />
-            <span />
-          </button>
-          <a href="#products" className="nav__link nav__link--hide">
-            Shop
-          </a>
-          <a href="#story" className="nav__link nav__link--hide">
-            About
-          </a>
-        </div>
-        <a href="#top" className="nav__brand">
-          onie beauty<span className="dot" />
-        </a>
-        <div className="nav__side nav__side--right">
-          <a href="#contact" className="nav__link nav__link--hide">
-            Contact
-          </a>
-          <a href="#" className="nav__link" aria-label="Cart">
-            Cart (0)
-          </a>
-        </div>
-      </header>
+      <Nav />
 
       <main>
         <Hero />
@@ -111,9 +59,10 @@ export default function Home() {
 
           <div className="products__grid" data-reveal="stagger">
             {PRODUCTS.map((p) => (
-              <article
-                className={`card card--${p.name.toLowerCase()}`}
-                key={p.name}
+              <Link
+                href={`/products/${p.slug}`}
+                className={`card card--${p.slug}`}
+                key={p.slug}
                 style={{ "--c1": p.c1 }}
               >
                 <span className="card__glow" />
@@ -135,12 +84,12 @@ export default function Home() {
                   />
                 </div>
                 <div className="card__bottom">
-                  <p className="card__desc">{p.desc}</p>
-                  <button className="card__add" aria-label={`Add ${p.name}`}>
-                    Add item <span className="plus" />
-                  </button>
+                  <p className="card__desc">{p.cardDesc}</p>
+                  <span className="card__add">
+                    View product <span className="plus" />
+                  </span>
                 </div>
-              </article>
+              </Link>
             ))}
           </div>
         </section>
@@ -189,10 +138,14 @@ export default function Home() {
                 </div>
                 <div className="spotlight__cta" data-reveal="fade" data-delay="0.2">
                   <span className="spotlight__price">$45.00</span>
-                  <a href="#" className="btn btn--solid" data-magnetic="0.4">
-                    <span>Add to cart</span>
+                  <Link
+                    href="/products/purify"
+                    className="btn btn--solid"
+                    data-magnetic="0.4"
+                  >
+                    <span>View product</span>
                     <i className="btn__arrow" />
-                  </a>
+                  </Link>
                 </div>
               </div>
 
@@ -277,39 +230,7 @@ export default function Home() {
         <Newsletter />
       </main>
 
-      {/* ---------- footer ---------- */}
-      <footer className="footer" id="footer">
-        <div className="wrap">
-          <div className="footer__top">
-            <div className="footer__social">
-              <a href="#" aria-label="YouTube">
-                <IconYoutube />
-              </a>
-              <a href="#" aria-label="Instagram">
-                <IconInstagram />
-              </a>
-              <a href="#" aria-label="Twitter">
-                <IconTwitter />
-              </a>
-            </div>
-            <nav className="footer__nav" aria-label="Footer">
-              <a href="#products">Shop</a>
-              <a href="#contact">Contact</a>
-              <a href="#story">About</a>
-              <a href="#footer">Blog</a>
-            </nav>
-          </div>
-        </div>
-        <div className="footer__wordmark" data-drift>
-          onie beauty
-        </div>
-        <div className="wrap">
-          <div className="footer__legal">
-            <span>© 2026 Onie Beauty Cosmetics. All rights reserved.</span>
-            <span>Designed &amp; developed by Taisiya Lebedeva</span>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </>
   );
 }
