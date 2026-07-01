@@ -83,7 +83,7 @@ export default function Liquid() {
       setWebgl(true);
 
       new THREE.TextureLoader().load(
-        "/img/hero-face.png",
+        "/img/hero-face.webp",
         (tex) => {
           tex.minFilter = THREE.LinearFilter;
           tex.magFilter = THREE.LinearFilter;

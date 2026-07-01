@@ -6,12 +6,15 @@ export default function Hero() {
       {/* static gradient fallback always present underneath */}
       <div className="hero__fallback" aria-hidden="true" />
       {/* static portrait — shown on the right when WebGL is unavailable */}
-      <img
-        className="hero__portrait"
-        src="/img/hero-face.png"
-        alt=""
-        aria-hidden="true"
-      />
+      <picture>
+        <source srcSet="/img/hero-face.webp" type="image/webp" />
+        <img
+          className="hero__portrait"
+          src="/img/hero-face.png"
+          alt=""
+          aria-hidden="true"
+        />
+      </picture>
       {/* WebGL reveal (fades in over the fallback when supported) */}
       <Liquid />
       <div className="hero__grain" aria-hidden="true" />
