@@ -31,6 +31,7 @@ export default function AboutPage() {
         <section className="section wrap about__founders">
           <div className="about__fmedia" data-reveal="fade">
             <span className="about__accent" aria-hidden="true" />
+            <span className="about__seam" aria-hidden="true" />
             <figure className="fdr fdr--1">
               <img src="/img/founders-1.jpg" alt="Maria and Claire" loading="lazy" />
               <figcaption>Meet Maria &amp; Claire</figcaption>

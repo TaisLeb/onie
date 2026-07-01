@@ -2008,30 +2008,34 @@ img {
 }
 .about__accent {
   position: absolute;
-  right: 4%;
-  top: 8%;
-  width: 46%;
-  height: 62%;
-  background: var(--blush);
-  border-radius: 8px;
+  right: 0%;
+  top: 2%;
+  width: 54%;
+  height: 72%;
+  background: radial-gradient(
+    58% 58% at 50% 50%,
+    var(--lilac-bright) 0%,
+    rgba(175, 143, 215, 0.55) 46%,
+    transparent 74%
+  );
+  filter: blur(10px);
   z-index: 0;
 }
-.about__accent::before,
-.about__accent::after {
-  content: "";
+/* soft lilac glow that peeks between the two founder photos */
+.about__seam {
   position: absolute;
-  top: 42%;
-  width: 34%;
-  height: 24%;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(175, 143, 215, 0.6), transparent 70%);
-  filter: blur(18px);
-}
-.about__accent::before {
-  left: -60%;
-}
-.about__accent::after {
-  right: -60%;
+  left: 40%;
+  top: 16%;
+  width: 26%;
+  height: 66%;
+  background: radial-gradient(
+    50% 50% at 50% 50%,
+    var(--lilac-bright) 0%,
+    rgba(175, 143, 215, 0.5) 45%,
+    transparent 72%
+  );
+  filter: blur(10px);
+  z-index: 2;
 }
 .fdr {
   position: absolute;
@@ -2047,9 +2051,9 @@ img {
 .fdr--1 {
   left: 0;
   top: 6%;
-  width: 60%;
+  width: 58%;
   aspect-ratio: 4 / 5;
-  z-index: 2;
+  z-index: 3;
 }
 .fdr--1 figcaption {
   position: absolute;
@@ -2092,12 +2096,17 @@ img {
 }
 .about__accent--2 {
   position: absolute;
-  right: 6%;
-  bottom: -4%;
-  width: 40%;
-  height: 52%;
-  background: var(--blush);
-  border-radius: 8px;
+  right: 4%;
+  bottom: -6%;
+  width: 46%;
+  height: 60%;
+  background: radial-gradient(
+    56% 56% at 50% 50%,
+    var(--lilac-bright) 0%,
+    rgba(175, 143, 215, 0.5) 46%,
+    transparent 74%
+  );
+  filter: blur(12px);
   z-index: 0;
 }
 .ig {
