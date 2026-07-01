@@ -8,7 +8,7 @@ export default function Hero() {
       {/* static portrait — shown on the right when WebGL is unavailable */}
       <img
         className="hero__portrait"
-        src="/img/hero-face.jpg"
+        src="/img/hero-face.png"
         alt=""
         aria-hidden="true"
       />
@@ -26,11 +26,11 @@ export default function Hero() {
 
           <h1 className="hero__title display" data-reveal="lines">
             <span className="reveal-line">
-              <span>Bare your</span>
+              <span>Reveal your</span>
             </span>
             <span className="reveal-line line2">
               <span>
-                <em>natural</em> beauty
+                <em>natural</em> glow
               </span>
             </span>
           </h1>

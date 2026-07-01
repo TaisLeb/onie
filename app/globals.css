@@ -398,17 +398,25 @@ img {
   height: 100% !important;
 }
 /* static portrait fallback on the right (no-WebGL); hidden once shader paints */
+/* static portrait fallback on the right (no-WebGL); hidden once shader paints */
 .hero__portrait {
   position: absolute;
-  inset: 0;
-  width: 100%;
+  top: 0;
+  right: 0;
+  width: 60%;
   height: 100%;
-  object-fit: cover;
-  object-position: center;
+  object-fit: contain;
+  object-position: bottom right;
   z-index: 0;
 }
 .webgl-on .hero__portrait {
   display: none;
+}
+@media (max-width: 900px) {
+  .hero__portrait {
+    width: 100%;
+    object-position: bottom center;
+  }
 }
 /* static fallback — the real signature lilac glow asset drifting over
    butter. Distinct orbital animation (not Unfold's hue-rotate drift). */

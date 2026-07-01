@@ -3,11 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 
 /**
- * Hero background: a soft lilac glow-field with a portrait on the right that
- * the cursor permanently reveals (scratch-to-reveal). The reveal mask is
- * accumulated in a ping-pong render target so painted areas stay revealed.
- * No-cursor devices get a slow auto-reveal sweep. Falls back to the CSS
- * gradient + static portrait (`.hero__portrait`) when WebGL is unavailable.
+ * Hero background: a living lilac glow-field with the (transparent-cutout)
+ * portrait composited on the right, feathered into the glow. The pointer
+ * gently blooms the glow. Falls back to the CSS gradient + static portrait
+ * (`.hero__portrait`) when WebGL is unavailable.
  */
 export default function Liquid() {
   const mountRef = useRef(null);
@@ -31,7 +30,7 @@ export default function Liquid() {
     }
     if (!supported) return;
 
-    let renderer, camera, ro, io, raf;
+    let renderer, scene, camera, material, mesh, raf, ro, io;
     let disposed = false;
     const mount = mountRef.current;
 
@@ -55,122 +54,71 @@ export default function Liquid() {
 
       const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       renderer.setPixelRatio(dpr);
-      let w = mount.clientWidth || window.innerWidth;
-      let h = mount.clientHeight || window.innerHeight;
+      const w = mount.clientWidth || window.innerWidth;
+      const h = mount.clientHeight || window.innerHeight;
       renderer.setSize(w, h, false);
       mount.appendChild(renderer.domElement);
 
+      scene = new THREE.Scene();
       camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-      const quad = new THREE.PlaneGeometry(2, 2);
 
-      // ---- ping-pong render targets for the persistent reveal mask ----
-      const rtOpts = {
-        minFilter: THREE.LinearFilter,
-        magFilter: THREE.LinearFilter,
-        depthBuffer: false,
-        stencilBuffer: false,
+      const uniforms = {
+        uTime: { value: 0 },
+        uRes: { value: new THREE.Vector2(w, h) },
+        uScroll: { value: 0 },
+        uMouse: { value: new THREE.Vector2(0.3, 0.55) },
+        uTex: { value: null },
+        uImgAspect: { value: 1.3 },
+        uReady: { value: 0 },
       };
-      const mw = () => Math.max(256, Math.floor(w * 0.6));
-      const mh = () => Math.max(256, Math.floor(h * 0.6));
-      let rtA = new THREE.WebGLRenderTarget(mw(), mh(), rtOpts);
-      let rtB = new THREE.WebGLRenderTarget(mw(), mh(), rtOpts);
-      const clearRT = (rt) => {
-        renderer.setRenderTarget(rt);
-        renderer.setClearColor(0x000000, 1);
-        renderer.clear();
-      };
-      clearRT(rtA);
-      clearRT(rtB);
-      renderer.setRenderTarget(null);
 
-      // paint pass — accumulate the brush into the previous mask (max = stays)
-      const paintMat = new THREE.ShaderMaterial({
-        uniforms: {
-          uPrev: { value: null },
-          uMouse: { value: new THREE.Vector2(0.74, 0.55) },
-          uPrevMouse: { value: new THREE.Vector2(0.74, 0.55) },
-          uAspect: { value: w / h },
-          uRadius: { value: 0.14 },
-        },
+      material = new THREE.ShaderMaterial({
+        uniforms,
         vertexShader: VERT,
-        fragmentShader: PAINT,
+        fragmentShader: FRAG,
       });
-      const paintScene = new THREE.Scene();
-      paintScene.add(new THREE.Mesh(quad, paintMat));
-
-      // display pass — glow + portrait revealed by the mask
-      const trail = []; // unused; kept tiny for compatibility
-      const dispMat = new THREE.ShaderMaterial({
-        uniforms: {
-          uTime: { value: 0 },
-          uRes: { value: new THREE.Vector2(w, h) },
-          uScroll: { value: 0 },
-          uTex: { value: null },
-          uImgAspect: { value: 0.75 },
-          uReady: { value: 0 },
-          uMask: { value: null },
-        },
-        vertexShader: VERT,
-        fragmentShader: DISPLAY,
-      });
-      const mainScene = new THREE.Scene();
-      mainScene.add(new THREE.Mesh(quad, dispMat));
+      mesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material);
+      scene.add(mesh);
 
       setWebgl(true);
 
       new THREE.TextureLoader().load(
-        "/img/hero-face.jpg",
+        "/img/hero-face.png",
         (tex) => {
           tex.minFilter = THREE.LinearFilter;
           tex.magFilter = THREE.LinearFilter;
           tex.generateMipmaps = false;
-          dispMat.uniforms.uTex.value = tex;
+          uniforms.uTex.value = tex;
           if (tex.image)
-            dispMat.uniforms.uImgAspect.value =
-              tex.image.width / tex.image.height;
-          dispMat.uniforms.uReady.value = 1;
+            uniforms.uImgAspect.value = tex.image.width / tex.image.height;
+          uniforms.uReady.value = 1;
         },
         undefined,
         (err) => console.warn("[Liquid] portrait texture failed:", err)
       );
 
-      // ---- pointer ----
-      const canHover = window.matchMedia("(hover: hover)").matches;
-      const target = { x: 0.74, y: 0.55 };
-      const eased = { x: 0.74, y: 0.55 };
-      const prev = { x: 0.74, y: 0.55 };
-      let auto = true; // brief auto-reveal hint on load (and forever on touch)
+      // ---- pointer glow bloom ----
+      const target = { x: 0.3, y: 0.55 };
+      const eased = { x: 0.3, y: 0.55 };
       const onMove = (e) => {
         const t = e.touches ? e.touches[0] : e;
         target.x = t.clientX / window.innerWidth;
         target.y = 1 - t.clientY / window.innerHeight;
-        auto = false;
       };
       window.addEventListener("pointermove", onMove, { passive: true });
-      window.addEventListener("touchmove", onMove, { passive: true });
-      // stop the auto hint on desktop after a few seconds even without movement
-      const autoTimer = setTimeout(() => {
-        if (canHover) auto = false;
-      }, 3200);
 
       const onScroll = () => {
         const max = document.body.scrollHeight - window.innerHeight;
-        dispMat.uniforms.uScroll.value = max > 0 ? window.scrollY / max : 0;
+        uniforms.uScroll.value = max > 0 ? window.scrollY / max : 0;
       };
       window.addEventListener("scroll", onScroll, { passive: true });
 
       const onResize = () => {
         if (!mount) return;
-        w = mount.clientWidth || window.innerWidth;
-        h = mount.clientHeight || window.innerHeight;
-        renderer.setSize(w, h, false);
-        dispMat.uniforms.uRes.value.set(w, h);
-        paintMat.uniforms.uAspect.value = w / h;
-        rtA.setSize(mw(), mh());
-        rtB.setSize(mw(), mh());
-        clearRT(rtA);
-        clearRT(rtB);
-        renderer.setRenderTarget(null);
+        const nw = mount.clientWidth || window.innerWidth;
+        const nh = mount.clientHeight || window.innerHeight;
+        renderer.setSize(nw, nh, false);
+        uniforms.uRes.value.set(nw, nh);
       };
       ro = new ResizeObserver(onResize);
       ro.observe(mount);
@@ -182,33 +130,11 @@ export default function Liquid() {
       const loop = () => {
         if (!running) return;
         raf = requestAnimationFrame(loop);
-        const time = (performance.now() - t0) / 1000;
-        dispMat.uniforms.uTime.value = time;
-
-        if (auto) {
-          target.x = 0.5 + 0.3 * Math.sin(time * 0.55);
-          target.y = 0.5 + 0.32 * Math.sin(time * 0.4 + 1.3);
-        }
-        prev.x = eased.x;
-        prev.y = eased.y;
-        eased.x += (target.x - eased.x) * 0.14;
-        eased.y += (target.y - eased.y) * 0.14;
-
-        // paint pass: rtA(prev) -> rtB
-        paintMat.uniforms.uPrev.value = rtA.texture;
-        paintMat.uniforms.uPrevMouse.value.set(prev.x, prev.y);
-        paintMat.uniforms.uMouse.value.set(eased.x, eased.y);
-        renderer.setRenderTarget(rtB);
-        renderer.render(paintScene, camera);
-        renderer.setRenderTarget(null);
-        const tmp = rtA;
-        rtA = rtB;
-        rtB = tmp;
-
-        // display
-        dispMat.uniforms.uMask.value = rtA.texture;
-        renderer.render(mainScene, camera);
-
+        uniforms.uTime.value = (performance.now() - t0) / 1000;
+        eased.x += (target.x - eased.x) * 0.12;
+        eased.y += (target.y - eased.y) * 0.12;
+        uniforms.uMouse.value.set(eased.x, eased.y);
+        renderer.render(scene, camera);
         if (!firstRendered) {
           firstRendered = true;
           document.documentElement.classList.add("webgl-on");
@@ -250,20 +176,15 @@ export default function Liquid() {
       startLoop();
 
       mount._cleanup = () => {
-        clearTimeout(autoTimer);
         window.removeEventListener("pointermove", onMove);
-        window.removeEventListener("touchmove", onMove);
         window.removeEventListener("scroll", onScroll);
         document.removeEventListener("visibilitychange", onVis);
         io && io.disconnect();
         ro && ro.disconnect();
         stopLoop();
-        if (dispMat.uniforms.uTex.value) dispMat.uniforms.uTex.value.dispose();
-        rtA.dispose();
-        rtB.dispose();
-        quad.dispose();
-        paintMat.dispose();
-        dispMat.dispose();
+        if (uniforms.uTex.value) uniforms.uTex.value.dispose();
+        mesh && mesh.geometry.dispose();
+        material && material.dispose();
         renderer && renderer.dispose();
         if (renderer && renderer.domElement && renderer.domElement.parentNode) {
           renderer.domElement.parentNode.removeChild(renderer.domElement);
@@ -302,43 +223,14 @@ const VERT = /* glsl */ `
   }
 `;
 
-/* accumulate the brush stroke into the previous mask (max keeps it revealed) */
-const PAINT = /* glsl */ `
-  precision highp float;
-  varying vec2 vUv;
-  uniform sampler2D uPrev;
-  uniform vec2 uMouse;
-  uniform vec2 uPrevMouse;
-  uniform float uAspect;
-  uniform float uRadius;
-
-  float segDist(vec2 p, vec2 a, vec2 b){
-    vec2 pa = p - a, ba = b - a;
-    float hh = clamp(dot(pa, ba) / max(dot(ba, ba), 1e-6), 0.0, 1.0);
-    return length(pa - ba * hh);
-  }
-
-  void main(){
-    vec2 p = vUv * vec2(uAspect, 1.0);
-    vec2 a = uPrevMouse * vec2(uAspect, 1.0);
-    vec2 b = uMouse * vec2(uAspect, 1.0);
-    float d = segDist(p, a, b);
-    float add = smoothstep(uRadius, uRadius * 0.35, d);
-    float prev = texture2D(uPrev, vUv).r;
-    gl_FragColor = vec4(vec3(max(prev, add)), 1.0);
-  }
-`;
-
-const DISPLAY = /* glsl */ `
+const FRAG = /* glsl */ `
   precision highp float;
   varying vec2 vUv;
   uniform float uTime, uScroll, uImgAspect, uReady;
-  uniform vec2 uRes;
+  uniform vec2 uRes, uMouse;
   uniform sampler2D uTex;
-  uniform sampler2D uMask;
 
   float blob(vec2 uv, vec2 c, float r){ float d = distance(uv,c); return exp(-(d*d)/r); }
-
   vec2 coverUv(vec2 uv, float boxA, float imgA){
     vec2 r = uv - 0.5;
     if (boxA > imgA) r.y *= imgA / boxA; else r.x *= boxA / imgA;
@@ -351,12 +243,18 @@ const DISPLAY = /* glsl */ `
     vec2 p = uv; p.x *= aspect;
     float t = uTime * 0.16;
 
-    // ---- lilac glow-field ----
+    // ---- lilac glow-field spread across the whole hero + pointer bloom ----
     float f = 0.0;
-    f += blob(p, vec2(aspect*(0.22+0.05*sin(t*0.7)), 0.64+0.05*cos(t*0.5)), 0.12);
-    f += blob(p, vec2(aspect*(0.42+0.05*cos(t*0.6)), 0.40+0.06*sin(t*0.8)), 0.10) * 0.9;
-    f += blob(p, vec2(aspect*(0.30+0.06*sin(t*0.4+1.7)), 0.26+0.04*cos(t*0.9)), 0.075) * 0.8;
+    f += blob(p, vec2(aspect*(0.20+0.05*sin(t*0.7)), 0.64+0.05*cos(t*0.5)), 0.13);
+    f += blob(p, vec2(aspect*(0.40+0.05*cos(t*0.6)), 0.40+0.06*sin(t*0.8)), 0.11) * 0.9;
+    f += blob(p, vec2(aspect*(0.30+0.06*sin(t*0.4+1.7)), 0.26+0.04*cos(t*0.9)), 0.08) * 0.8;
     f += blob(p, vec2(aspect*(0.12+0.05*cos(t*0.5+2.1)), 0.20+0.05*sin(t*0.6)), 0.07) * 0.7;
+    // right-side blooms so the glow also animates behind the portrait cutout
+    f += blob(p, vec2(aspect*(0.66+0.06*sin(t*0.5+3.0)), 0.52+0.06*cos(t*0.7)), 0.12) * 0.85;
+    f += blob(p, vec2(aspect*(0.84+0.05*cos(t*0.6+1.0)), 0.70+0.05*sin(t*0.5)), 0.10) * 0.8;
+    f += blob(p, vec2(aspect*(0.74+0.06*sin(t*0.45+0.4)), 0.28+0.05*cos(t*0.85)), 0.085) * 0.75;
+    vec2 m = uMouse; m.x *= aspect;
+    f += blob(p, m, 0.05) * 0.55;
     f *= 1.0 + 0.06 * sin(uv.x*5.0+t*2.0) * sin(uv.y*4.0-t*1.3);
 
     vec3 butter = vec3(0.945,0.925,0.713);
@@ -364,29 +262,49 @@ const DISPLAY = /* glsl */ `
     vec3 lilac  = vec3(0.686,0.561,0.843);
     vec3 lilacHi= vec3(0.835,0.745,0.953);
     vec3 violet = vec3(0.478,0.322,0.753);
-    vec3 base = mix(butter, cream, smoothstep(0.15, 1.05, uv.y*0.7+0.15));
+    vec3 baseC = mix(butter, cream, smoothstep(0.15, 1.05, uv.y*0.7+0.15));
     float v = clamp(f, 0.0, 1.6);
-    vec3 glow = base;
+    vec3 glow = baseC;
     glow = mix(glow, mix(butter,lilac,0.5), smoothstep(0.12,0.45,v));
     glow = mix(glow, lilac, smoothstep(0.40,0.95,v));
     glow = mix(glow, lilacHi, smoothstep(0.85,1.25,v));
     glow = mix(glow, violet, smoothstep(1.15,1.55,v)*0.3);
     glow = mix(glow, lilac, uScroll*0.1);
 
-    // ---- reveal from accumulated mask (full-bleed) ----
-    float painted = texture2D(uMask, uv).r;
-    float reveal = clamp(painted * uReady, 0.0, 1.0);
+    // ---- portrait composited on the right (adaptive split) ----
+    float rx0 = mix(0.06, 0.40, smoothstep(0.85, 1.35, aspect));
+    vec2 local = vec2((uv.x - rx0) / (1.0 - rx0), uv.y);
+    float regAsp = ((1.0 - rx0) * uRes.x) / uRes.y;
+    vec2 puv = coverUv(local, regAsp, uImgAspect);
+    vec4 tex = texture2D(uTex, vec2(puv.x, puv.y));
+    float gate = smoothstep(rx0 - 0.05, rx0 + 0.07, uv.x);
+    float a = clamp(tex.a * gate * uReady, 0.0, 1.0);
 
-    // ---- portrait covers the whole hero (undistorted) ----
-    vec2 puv = coverUv(uv, aspect, uImgAspect);
-    vec3 portrait = texture2D(uTex, vec2(puv.x, puv.y)).rgb;
+    // ---- "glowing skin" light effect on her face ----
+    vec3 her = tex.rgb;
+    float lum = dot(her, vec3(0.299, 0.587, 0.114));
+    // diagonal light sweep travelling across her skin (matched to bg speed)
+    float phase = fract(uTime * 0.16);
+    float bandCoord = uv.x * 0.55 + (1.0 - uv.y) * 0.45;
+    float sweep = exp(-pow((bandCoord - (phase * 1.8 - 0.4)) * 5.0, 2.0));
+    // dewy highlight shimmer, gently pulsing on the brightest skin
+    float hi = smoothstep(0.5, 0.92, lum);
+    her += her * sweep * (0.14 + 0.18 * lum);                 // subtle sweep, more on highlights
+    her += vec3(1.0, 0.98, 0.94) * hi * (0.05 + 0.03 * sin(uTime * 2.0)); // gentle dewy glow
+    her += vec3(0.83, 0.74, 0.95) * sweep * hi * 0.08;        // faint lilac iridescence in the sweep
 
-    float m = smoothstep(0.10, 0.5, reveal);
-    vec3 col = mix(glow, portrait, m);
+    // soft radiant glow that follows the cursor across her skin (subtle)
+    vec2 mm = uMouse;
+    float md = distance(vec2(uv.x * aspect, uv.y), vec2(mm.x * aspect, mm.y));
+    float mouseGlow = exp(-md * md / 0.024);
+    her += her * mouseGlow * (0.12 + 0.13 * lum);             // gently lift skin under the cursor
+    her += vec3(1.0, 0.98, 0.94) * hi * mouseGlow * 0.09;     // soft dewy highlight
+    her += vec3(0.83, 0.74, 0.95) * mouseGlow * 0.05;         // faint lilac iridescence
 
-    // soft lilac sheen along the reveal edge so it melts into the glow
-    float edge = smoothstep(0.08, 0.3, reveal) * (1.0 - smoothstep(0.42, 0.72, reveal));
-    col += lilacHi * edge * 0.07;
+    vec3 col = mix(glow, her, a);
+
+    // soft outer aura around her, echoing the radiance into the glow
+    col += vec3(0.86, 0.78, 0.96) * a * (1.0 - a) * (0.12 + 0.08 * sweep);
 
     gl_FragColor = vec4(col, 1.0);
   }

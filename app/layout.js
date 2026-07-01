@@ -18,9 +18,9 @@ const inter = Inter({
 
 export const metadata = {
   metadataBase: new URL("https://onie-beauty.vercel.app"),
-  title: "Onie Beauty — Bare Your Natural Beauty",
+  title: "Onie Beauty — Reveal Your Natural Glow",
   description:
-    "Onie Beauty — organic, biodynamic skincare designed to bring out the best in you and highlight your natural beauty. Just powerful ingredients that Mother Nature gifted us.",
+    "Onie Beauty — organic, biodynamic skincare designed to reveal your natural glow. Just powerful, living ingredients that Mother Nature gifted us.",
   keywords: [
     "Onie Beauty",
     "organic skincare",
@@ -29,9 +29,9 @@ export const metadata = {
     "clean beauty",
   ],
   openGraph: {
-    title: "Onie Beauty — Bare Your Natural Beauty",
+    title: "Onie Beauty — Reveal Your Natural Glow",
     description:
-      "Organic, biodynamic skincare designed to highlight your natural beauty.",
+      "Organic, biodynamic skincare designed to reveal your natural glow.",
     type: "website",
   },
 };
