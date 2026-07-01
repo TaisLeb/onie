@@ -12,7 +12,7 @@ export default function Nav() {
         <Link href="/#products" className="nav__link nav__link--hide">
           Shop
         </Link>
-        <Link href="/#story" className="nav__link nav__link--hide">
+        <Link href="/about" className="nav__link nav__link--hide">
           About
         </Link>
       </div>
@@ -23,9 +23,9 @@ export default function Nav() {
         <Link href="/#contact" className="nav__link nav__link--hide">
           Contact
         </Link>
-        <a href="#" className="nav__link" aria-label="Cart">
-          Cart (0)
-        </a>
+        <Link href="/cart" className="nav__link" aria-label="Cart">
+          Cart
+        </Link>
       </div>
     </header>
   );

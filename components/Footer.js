@@ -20,7 +20,7 @@ export default function Footer() {
           <nav className="footer__nav" aria-label="Footer">
             <Link href="/#products">Shop</Link>
             <Link href="/#contact">Contact</Link>
-            <Link href="/#story">About</Link>
+            <Link href="/about">About</Link>
             <Link href="/#footer">Blog</Link>
           </nav>
         </div>
