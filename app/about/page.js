@@ -32,11 +32,11 @@ export default function AboutPage() {
           <div className="about__fmedia" data-reveal="fade">
             <span className="about__accent" aria-hidden="true" />
             <span className="about__seam" aria-hidden="true" />
-            <figure className="fdr fdr--1">
+            <figure className="fdr fdr--1" data-parallax="0.05">
               <img src="/img/founders-1.jpg" alt="Maria and Claire" loading="lazy" />
               <figcaption>Meet Maria &amp; Claire</figcaption>
             </figure>
-            <figure className="fdr fdr--2">
+            <figure className="fdr fdr--2" data-parallax="0.09">
               <img src="/img/founders-2.jpg" alt="Maria and Claire outdoors" loading="lazy" />
             </figure>
           </div>
@@ -87,16 +87,16 @@ export default function AboutPage() {
 
           <div className="about__ig-grid" data-reveal="stagger">
             <span className="about__accent about__accent--2" aria-hidden="true" />
-            <figure className="ig ig--1">
+            <figure className="ig ig--1" data-parallax="0.06">
               <img src="/img/ing-cacao.jpg" alt="Cacao" loading="lazy" />
             </figure>
-            <figure className="ig ig--2">
+            <figure className="ig ig--2" data-parallax="0.03">
               <img src="/img/ing-passionfruit.jpg" alt="Passion fruit" loading="lazy" />
             </figure>
-            <figure className="ig ig--3">
+            <figure className="ig ig--3" data-parallax="0.09">
               <img src="/img/ing-blackberries.jpg" alt="Blackberries" loading="lazy" />
             </figure>
-            <figure className="ig ig--4">
+            <figure className="ig ig--4" data-parallax="0.05">
               <img src="/img/ing-papaya.jpg" alt="Papaya" loading="lazy" />
             </figure>
           </div>
