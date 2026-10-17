@@ -1,13 +1,20 @@
 "use client";
 
 import { useState } from "react";
+import { addToCart } from "@/lib/cart";
 
-export default function ProductBuy({ name, price }) {
+const parsePrice = (s) => parseFloat(String(s).replace(/[^0-9.]/g, "")) || 0;
+
+export default function ProductBuy({ slug, name, product, price, img }) {
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
 
   const add = () => {
     setAdded(true);
+    addToCart(
+      { slug, name: product || name, price: parsePrice(price), img },
+      qty
+    );
     setTimeout(() => setAdded(false), 2200);
   };
 
@@ -30,7 +37,7 @@ export default function ProductBuy({ name, price }) {
       </div>
       <button
         className="btn btn--solid buy__add"
-        data-magnetic="0.35"
+
         onClick={add}
       >
         <span>{added ? "Added to cart ✦" : "Add to cart"}</span>

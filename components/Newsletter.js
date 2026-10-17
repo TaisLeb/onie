@@ -30,7 +30,7 @@ export default function Newsletter() {
           onChange={(e) => setEmail(e.target.value)}
           aria-label="Email address"
         />
-        <button type="submit" data-magnetic="0.3">
+        <button type="submit">
           Submit <i className="btn__arrow" />
         </button>
       </form>

@@ -4,6 +4,7 @@ import { IconYoutube, IconInstagram, IconTwitter } from "@/components/Art";
 export default function Footer() {
   return (
     <footer className="footer" id="footer">
+      <span className="footer__aura" aria-hidden="true" />
       <div className="wrap">
         <div className="footer__top">
           <div className="footer__social">

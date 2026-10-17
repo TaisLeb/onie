@@ -5,12 +5,12 @@ export default function Hero() {
     <section className="hero" id="top">
       {/* static gradient fallback always present underneath */}
       <div className="hero__fallback" aria-hidden="true" />
-      {/* static portrait — shown on the right when WebGL is unavailable */}
+      {/* static portrait — full-bleed cover when WebGL is unavailable */}
       <picture>
-        <source srcSet="/img/hero-face.webp" type="image/webp" />
+        <source srcSet="/img/hero-lav.webp" type="image/webp" />
         <img
           className="hero__portrait"
-          src="/img/hero-face.png"
+          src="/img/hero-lav.png"
           alt=""
           aria-hidden="true"
         />
@@ -29,32 +29,40 @@ export default function Hero() {
 
           <h1 className="hero__title display" data-reveal="lines">
             <span className="reveal-line">
-              <span>Reveal your</span>
+              <span>
+                <span className="word">Reveal</span>{" "}
+                <span className="word">your</span>
+              </span>
             </span>
             <span className="reveal-line line2">
               <span>
-                <em>natural</em> glow
+                <em className="word">natural</em>
+              </span>
+            </span>
+            <span className="reveal-line line2">
+              <span>
+                <span className="word">glow</span>
               </span>
             </span>
           </h1>
+        </div>
 
-          <div className="hero__cta">
-            <p className="hero__lede" data-reveal="fade" data-delay="0.15">
-              Skincare designed to bring out the best in you — just powerful,
-              living ingredients that Mother Nature gifted us.
-            </p>
+        <div className="hero__cta">
+          <p className="hero__lede" data-reveal="fade" data-delay="0.15">
+            Skincare designed to bring out the best in you — just powerful,
+            living ingredients that Mother Nature gifted us.
+          </p>
 
-            <a
-              href="#products"
-              className="btn btn--solid"
-              data-magnetic="0.4"
-              data-reveal="fade"
-              data-delay="0.25"
-            >
-              <span>Shop products</span>
-              <i className="btn__arrow" />
-            </a>
-          </div>
+          <a
+            href="#products"
+            className="btn btn--solid"
+
+            data-reveal="fade"
+            data-delay="0.25"
+          >
+            <span>Shop products</span>
+            <i className="btn__arrow" />
+          </a>
         </div>
 
         <div className="hero__scroll" aria-hidden="true">

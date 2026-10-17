@@ -144,7 +144,7 @@ export default function BlogClient() {
 
       {hasMore && !showAll && (
         <div className="blog__more">
-          <button className="btn" data-magnetic="0.3" onClick={() => setShowAll(true)}>
+          <button className="btn" onClick={() => setShowAll(true)}>
             <span>More articles</span>
             <i className="btn__arrow" />
           </button>

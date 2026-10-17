@@ -1,4 +1,5 @@
 import Link from "next/link";
+import CartLink from "@/components/CartLink";
 
 export default function Nav() {
   return (
@@ -23,9 +24,7 @@ export default function Nav() {
         <Link href="/#contact" className="nav__link nav__link--hide">
           Contact
         </Link>
-        <Link href="/cart" className="nav__link" aria-label="Cart">
-          Cart
-        </Link>
+        <CartLink />
       </div>
     </header>
   );

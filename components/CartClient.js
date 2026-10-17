@@ -1,31 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { PRODUCTS } from "@/lib/products";
+import { readCart, writeCart } from "@/lib/cart";
 
-const parsePrice = (s) => parseFloat(String(s).replace(/[^0-9.]/g, ""));
 const money = (n) => `$${n.toFixed(2)}`;
 
 export default function CartClient() {
-  // demo cart seeded with the featured product
-  const seed = PRODUCTS.filter((p) => p.slug === "purify").map((p) => ({
-    slug: p.slug,
-    name: p.product,
-    price: parsePrice(p.price),
-    img: p.img,
-    qty: 1,
-  }));
-  const [items, setItems] = useState(seed);
+  const [items, setItems] = useState([]);
   const [placed, setPlaced] = useState(false);
 
+  useEffect(() => {
+    setItems(readCart());
+    const sync = () => setItems(readCart());
+    window.addEventListener("onie:cart", sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener("onie:cart", sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
+
   const setQty = (slug, d) =>
-    setItems((is) =>
-      is.map((i) =>
+    writeCart(
+      readCart().map((i) =>
         i.slug === slug ? { ...i, qty: Math.max(1, Math.min(9, i.qty + d)) } : i
       )
     );
-  const remove = (slug) => setItems((is) => is.filter((i) => i.slug !== slug));
+  const remove = (slug) => writeCart(readCart().filter((i) => i.slug !== slug));
 
   const subtotal = items.reduce((s, i) => s + i.price * i.qty, 0);
   const shipping = items.length ? 5 : 0;
@@ -35,6 +37,7 @@ export default function CartClient() {
     e.preventDefault();
     if (!items.length) return;
     setPlaced(true);
+    writeCart([]);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -148,7 +151,7 @@ export default function CartClient() {
 
         <button
           className="cart__place"
-          data-magnetic="0.25"
+
           onClick={placeOrder}
           disabled={!items.length}
         >

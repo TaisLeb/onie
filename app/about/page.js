@@ -33,11 +33,11 @@ export default function AboutPage() {
             <span className="about__accent" aria-hidden="true" />
             <span className="about__seam" aria-hidden="true" />
             <figure className="fdr fdr--1" data-parallax="0.05">
-              <img src="/img/founders-1.jpg" alt="Maria and Claire" loading="lazy" />
+              <img src="/img/slider-1.webp" alt="Maria and Claire" loading="lazy" />
               <figcaption>Meet Maria &amp; Claire</figcaption>
             </figure>
             <figure className="fdr fdr--2" data-parallax="0.09">
-              <img src="/img/founders-2.jpg" alt="Maria and Claire outdoors" loading="lazy" />
+              <img src="/img/about-golden.webp" alt="Maria and Claire in the garden" loading="lazy" />
             </figure>
           </div>
 

@@ -68,7 +68,7 @@ export default function Liquid() {
         uScroll: { value: 0 },
         uMouse: { value: new THREE.Vector2(0.3, 0.55) },
         uTex: { value: null },
-        uImgAspect: { value: 1.3 },
+        uImgAspect: { value: 1.333 },
         uReady: { value: 0 },
       };
 
@@ -83,7 +83,7 @@ export default function Liquid() {
       setWebgl(true);
 
       new THREE.TextureLoader().load(
-        "/img/hero-face.webp",
+        "/img/onie-hero-cutout.webp",
         (tex) => {
           tex.minFilter = THREE.LinearFilter;
           tex.magFilter = THREE.LinearFilter;
@@ -231,6 +231,7 @@ const FRAG = /* glsl */ `
   uniform sampler2D uTex;
 
   float blob(vec2 uv, vec2 c, float r){ float d = distance(uv,c); return exp(-(d*d)/r); }
+  float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
   vec2 coverUv(vec2 uv, float boxA, float imgA){
     vec2 r = uv - 0.5;
     if (boxA > imgA) r.y *= imgA / boxA; else r.x *= boxA / imgA;
@@ -241,70 +242,107 @@ const FRAG = /* glsl */ `
     vec2 uv = vUv;
     float aspect = uRes.x / uRes.y;
     vec2 p = uv; p.x *= aspect;
-    float t = uTime * 0.16;
+    float t = uTime * 1.15;  // background motion clock (faster, clearly perceptible)
 
-    // ---- lilac glow-field spread across the whole hero + pointer bloom ----
+    // ---- drifting lilac light-pools behind her (travel noticeably) ----
     float f = 0.0;
-    f += blob(p, vec2(aspect*(0.20+0.05*sin(t*0.7)), 0.64+0.05*cos(t*0.5)), 0.13);
-    f += blob(p, vec2(aspect*(0.40+0.05*cos(t*0.6)), 0.40+0.06*sin(t*0.8)), 0.11) * 0.9;
-    f += blob(p, vec2(aspect*(0.30+0.06*sin(t*0.4+1.7)), 0.26+0.04*cos(t*0.9)), 0.08) * 0.8;
-    f += blob(p, vec2(aspect*(0.12+0.05*cos(t*0.5+2.1)), 0.20+0.05*sin(t*0.6)), 0.07) * 0.7;
-    // right-side blooms so the glow also animates behind the portrait cutout
-    f += blob(p, vec2(aspect*(0.66+0.06*sin(t*0.5+3.0)), 0.52+0.06*cos(t*0.7)), 0.12) * 0.85;
-    f += blob(p, vec2(aspect*(0.84+0.05*cos(t*0.6+1.0)), 0.70+0.05*sin(t*0.5)), 0.10) * 0.8;
-    f += blob(p, vec2(aspect*(0.74+0.06*sin(t*0.45+0.4)), 0.28+0.05*cos(t*0.85)), 0.085) * 0.75;
+    f += blob(p, vec2(aspect*(0.22 + 0.16*sin(t*0.50)),       0.55 + 0.18*cos(t*0.40)), 0.17);
+    f += blob(p, vec2(aspect*(0.10 + 0.14*cos(t*0.45 + 1.0)), 0.28 + 0.16*sin(t*0.55)), 0.14) * 0.9;
+    f += blob(p, vec2(aspect*(0.30 + 0.15*sin(t*0.40 + 2.0)), 0.82 + 0.13*cos(t*0.50)), 0.13) * 0.85;
+    f += blob(p, vec2(aspect*(0.86 + 0.13*cos(t*0.48)),       0.42 + 0.17*sin(t*0.44)), 0.15) * 0.85;
+    f += blob(p, vec2(aspect*(0.72 + 0.15*sin(t*0.42 + 0.5)), 0.80 + 0.14*cos(t*0.60)), 0.13) * 0.8;
     vec2 m = uMouse; m.x *= aspect;
-    f += blob(p, m, 0.05) * 0.55;
-    f *= 1.0 + 0.06 * sin(uv.x*5.0+t*2.0) * sin(uv.y*4.0-t*1.3);
+    f += blob(p, m, 0.06) * 0.5;
 
-    vec3 butter = vec3(0.945,0.925,0.713);
-    vec3 cream  = vec3(0.984,0.972,0.905);
-    vec3 lilac  = vec3(0.686,0.561,0.843);
-    vec3 lilacHi= vec3(0.835,0.745,0.953);
-    vec3 violet = vec3(0.478,0.322,0.753);
-    vec3 baseC = mix(butter, cream, smoothstep(0.15, 1.05, uv.y*0.7+0.15));
     float v = clamp(f, 0.0, 1.6);
-    vec3 glow = baseC;
-    glow = mix(glow, mix(butter,lilac,0.5), smoothstep(0.12,0.45,v));
-    glow = mix(glow, lilac, smoothstep(0.40,0.95,v));
-    glow = mix(glow, lilacHi, smoothstep(0.85,1.25,v));
-    glow = mix(glow, violet, smoothstep(1.15,1.55,v)*0.3);
-    glow = mix(glow, lilac, uScroll*0.1);
 
-    // ---- portrait composited on the right (adaptive split) ----
-    float rx0 = mix(0.06, 0.40, smoothstep(0.85, 1.35, aspect));
-    vec2 local = vec2((uv.x - rx0) / (1.0 - rx0), uv.y);
-    float regAsp = ((1.0 - rx0) * uRes.x) / uRes.y;
-    vec2 puv = coverUv(local, regAsp, uImgAspect);
+    // ================= animated lavender BACKGROUND =================
+    // her cut-out sits on top of this; the field drifts behind her, echoing
+    // the soft lilac studio backdrop but alive.
+    vec3 lavMid  = vec3(0.74, 0.65, 0.84);
+    vec3 lavHi   = vec3(0.96, 0.93, 0.98);
+    vec3 lavDeep = vec3(0.54, 0.42, 0.72);
+    vec3 bg = mix(lavDeep, lavMid, smoothstep(-0.10, 0.90, uv.y)); // soft vertical base
+    bg = mix(bg, lavHi, smoothstep(0.10, 0.95, v) * 0.7);          // gentle drifting pools
+
+    // dappled light slowly drifting across the lavender (like sun through
+    // leaves) — the main, clearly-visible background motion.
+    float d1 = sin(uv.x * 4.0 + t * 0.9 + sin(uv.y * 3.5 + t * 0.6) * 2.5);
+    float d2 = sin(uv.y * 4.5 - t * 0.7 + cos(uv.x * 4.0 - t * 0.5) * 2.2);
+    float dap = 0.5 + 0.5 * (d1 * 0.55 + d2 * 0.45);
+    dap = smoothstep(0.18, 0.9, dap);                              // crisper dapples
+    bg = mix(bg, lavDeep, (1.0 - dap) * 0.30);                     // drifting shadows
+    bg = mix(bg, lavHi,   dap * 0.20);                             // drifting light
+
+    // ---- iridescent prism rays (soft pastel suncatcher) ----
+    // soft diagonal spectral streaks flow in from the left, gently warped so
+    // they drift like refracted light; each band carries a different hue.
+    // flowing, water-like domain warp (layered sines → organic ribbons that
+    // bend and drift rather than straight lines)
+    // layered, strongly-warped flow so the shapes read as organic liquid
+    // forms rather than straight bands
+    float w1 = sin(uv.x * 2.8 + t * 0.55 + sin(uv.y * 2.4 - t * 0.38) * 2.6);
+    float w2 = sin(uv.y * 3.2 - t * 0.48 + cos(uv.x * 2.1 + t * 0.34) * 2.4);
+    float w3 = sin((uv.x + uv.y) * 2.0 + t * 0.30 + sin(uv.x * 2.7 - uv.y * 1.8) * 2.2);
+    float w4 = sin((uv.x - uv.y) * 2.6 - t * 0.26 + cos(uv.y * 3.1 + t * 0.2) * 2.0);
+    float flow = w1 * 0.42 + w2 * 0.28 + w3 * 0.18 + w4 * 0.12;    // richly warped flow field
+    float rayCoord = (uv.x * 0.5 - uv.y * 0.4) * 3.0 + flow * 6.0; // flow dominates → organic shapes
+    float ray = 0.5 + 0.5 * sin(rayCoord);                        // curvy, liquid ribbons
+    ray = pow(ray, 2.4);                                          // defined, soft-edged forms
+    // spectral colour cycles along the ribbons (rainbow separation)
+    vec3 spectrum = 0.5 + 0.5 * cos(6.28318 * (vec3(0.0, 0.33, 0.67) + rayCoord * 0.42 + t * 0.1));
+    spectrum = mix(vec3(0.97, 0.95, 1.0), spectrum, 0.78);        // saturated but still pastel
+    float irMask = ray * 0.9;                                     // ribbon intensity (knob)
+    irMask *= smoothstep(1.25, -0.1, uv.x);                       // strongest on the left, fading across
+    bg = 1.0 - (1.0 - bg) * (1.0 - spectrum * irMask);            // screen-blend the spectral light
+
+    bg = mix(bg, lavDeep, uScroll * 0.06);
+
+    // ================= foreground: her transparent cut-out ===========
+    vec2 puv = coverUv(uv, aspect, uImgAspect);
     vec4 tex = texture2D(uTex, vec2(puv.x, puv.y));
-    float gate = smoothstep(rx0 - 0.05, rx0 + 0.07, uv.x);
-    float a = clamp(tex.a * gate * uReady, 0.0, 1.0);
-
-    // ---- "glowing skin" light effect on her face ----
+    float ready = uReady;
+    float a = clamp(tex.a, 0.0, 1.0) * ready;                     // her silhouette (alpha)
     vec3 her = tex.rgb;
     float lum = dot(her, vec3(0.299, 0.587, 0.114));
-    // diagonal light sweep travelling across her skin (matched to bg speed)
-    float phase = fract(uTime * 0.16);
-    float bandCoord = uv.x * 0.55 + (1.0 - uv.y) * 0.45;
-    float sweep = exp(-pow((bandCoord - (phase * 1.8 - 0.4)) * 5.0, 2.0));
-    // dewy highlight shimmer, gently pulsing on the brightest skin
-    float hi = smoothstep(0.5, 0.92, lum);
-    her += her * sweep * (0.14 + 0.18 * lum);                 // subtle sweep, more on highlights
-    her += vec3(1.0, 0.98, 0.94) * hi * (0.05 + 0.03 * sin(uTime * 2.0)); // gentle dewy glow
-    her += vec3(0.83, 0.74, 0.95) * sweep * hi * 0.08;        // faint lilac iridescence in the sweep
 
-    // soft radiant glow that follows the cursor across her skin (subtle)
-    vec2 mm = uMouse;
-    float md = distance(vec2(uv.x * aspect, uv.y), vec2(mm.x * aspect, mm.y));
-    float mouseGlow = exp(-md * md / 0.024);
-    her += her * mouseGlow * (0.12 + 0.13 * lum);             // gently lift skin under the cursor
-    her += vec3(1.0, 0.98, 0.94) * hi * mouseGlow * 0.09;     // soft dewy highlight
-    her += vec3(0.83, 0.74, 0.95) * mouseGlow * 0.05;         // faint lilac iridescence
+    // tame her high-key exposure so skin reads with depth, not washed-out
+    vec3 herCol = her * 0.82;
+    herCol = pow(clamp(herCol, 0.0, 1.0), vec3(1.10));
 
-    vec3 col = mix(glow, her, a);
+    // ---- ONE soft highlight that travels continuously across her ----
+    float phase = fract(uTime * 0.09);
+    float bandCoord = uv.x * 0.5 + (1.0 - uv.y) * 0.5;
+    float sweep = exp(-pow((bandCoord - (phase * 2.0 - 0.5)) * 3.0, 2.0));
+    float room = mix(0.5, 1.0, smoothstep(0.97, 0.45, lum));
+    sweep *= room;
+    herCol += herCol * sweep * 0.15;                             // lift in her own tones
+    herCol += vec3(0.82, 0.72, 0.96) * sweep * 0.04;             // faint lilac in the light
 
-    // soft outer aura around her, echoing the radiance into the glow
-    col += vec3(0.86, 0.78, 0.96) * a * (1.0 - a) * (0.12 + 0.08 * sweep);
+    // ---- soft radiant glow that follows the cursor across her skin ----
+    float md = distance(vec2(uv.x * aspect, uv.y), vec2(uMouse.x * aspect, uMouse.y));
+    float mouseGlow = exp(-md * md / 0.022);
+    float mroom = mix(0.55, 1.0, smoothstep(0.97, 0.45, lum));
+    mouseGlow *= mroom;
+    herCol += herCol * mouseGlow * 0.18;                         // gentle lift under the cursor
+    herCol += vec3(0.90, 0.83, 0.98) * mouseGlow * 0.05;         // soft lilac-dewy bloom
+
+    // ---- "freshly moisturised" dewy sheen inside the cursor pool ----
+    float hiSkin = smoothstep(0.55, 0.92, lum);                  // the brightest skin high points
+    // glossy specular bloom — skin looks wet/plumped where light catches
+    herCol += vec3(1.0, 0.985, 0.95) * mouseGlow * hiSkin * 0.25;
+    // whisper of pearly iridescence in the shine (luxe balm, not plain gloss)
+    vec3 pearl = 0.5 + 0.5 * cos(6.28318 * (vec3(0.0, 0.33, 0.67) + lum * 2.0 + uTime * 0.2));
+    herCol += pearl * mouseGlow * hiSkin * 0.03;
+
+    // ================= composite her over the moving field ===========
+    vec3 col = mix(bg, herCol, a);
+
+    // ---- subtle veil behind the heading (left) for text contrast ----
+    // only lifts the DARK areas (e.g. hair) toward a soft lilac so the dark
+    // navy heading stays legible; bright areas are left untouched.
+    float veil = (1.0 - smoothstep(0.52, 0.82, uv.x)) * 0.192 * ready;
+    col = mix(col, max(col, vec3(0.88, 0.83, 0.92)), veil);
 
     gl_FragColor = vec4(col, 1.0);
   }
