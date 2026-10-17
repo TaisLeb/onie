@@ -165,6 +165,7 @@ img {
 .glow {
   position: relative;
   display: inline;
+  isolation: isolate;
 }
 .glow::after {
   content: "";
@@ -173,7 +174,8 @@ img {
   right: -4%;
   top: 14%;
   bottom: 14%;
-  z-index: -1;
+  z-index: 0;
+  pointer-events: none;
   border-radius: 50%;
   background: radial-gradient(
     60% 120% at 50% 50%,
@@ -187,7 +189,8 @@ img {
   clip-path: inset(0 100% 0 0);
   transition: clip-path 1s var(--ease);
 }
-.glow.is-drawn::after {
+.glow.is-drawn::after,
+.glow-revealed .glow::after {
   clip-path: inset(0 0 0 0);
 }
 @media (prefers-reduced-motion: reduce) {
@@ -370,21 +373,6 @@ img {
 .nav__link:hover::after {
   width: 100%;
 }
-.nav__burger {
-  display: inline-flex;
-  flex-direction: column;
-  gap: 5px;
-  width: 26px;
-}
-.nav__burger span {
-  height: 1.5px;
-  background: currentColor;
-  width: 100%;
-}
-.nav__burger span:last-child {
-  width: 60%;
-}
-
 /* adaptive colouring: light text while over the dark hero */
 .nav {
   color: var(--ink);
@@ -398,8 +386,26 @@ img {
 }
 
 @media (max-width: 720px) {
-  .nav__link--hide {
-    display: none;
+  .nav {
+    grid-template-columns: 1fr auto;
+    row-gap: 0.65rem;
+  }
+  .nav__brand {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+  .nav__side {
+    grid-column: 1;
+    grid-row: 2;
+    gap: clamp(0.6rem, 3vw, 1.1rem);
+  }
+  .nav__side--right {
+    grid-column: 2;
+    gap: clamp(0.6rem, 3vw, 1.1rem);
+  }
+  .nav__link {
+    font-size: 0.63rem;
+    letter-spacing: 0.1em;
   }
 }
 
@@ -1265,13 +1271,12 @@ img {
   aspect-ratio: 4 / 5;
   margin-inline: auto;
   justify-self: end;
-  /* clip so the cards slide up from below while staying fully opaque;
-     the cards are inset so the fanned angles/offsets fit inside this box */
+  /* Clip only the offstage slide-in; leave room for every settled card angle. */
   overflow: hidden;
 }
 .story__card {
   position: absolute;
-  inset: 9% 10%;
+  inset: 15% 16%;
   border-radius: 20px;
   overflow: hidden;
   will-change: transform;
@@ -1800,11 +1805,11 @@ img {
   opacity: 0;
   transition: opacity 0.6s var(--ease);
 }
-.pdp__media:hover .pdp__hover {
+.pdp__media--nourish:hover .pdp__hover {
   opacity: 1;
 }
-/* closed jar fades out as the open jar fades in */
-.pdp__media:hover .pdp__product {
+/* Only the Nourish jar cross-fades to its open view. */
+.pdp__media--nourish:hover .pdp__product {
   opacity: 0;
 }
 .pdp__glow {
@@ -1826,6 +1831,14 @@ img {
   filter: drop-shadow(0 34px 40px rgba(20, 9, 38, 0.28));
   animation: float 7s ease-in-out infinite;
   transition: opacity 0.6s var(--ease);
+}
+/* The tall Brighten asset needs a height constraint independent of its width. */
+.pdp__media--brighten .pdp__product {
+  position: absolute;
+  inset: 12%;
+  width: 76%;
+  height: 76%;
+  object-fit: contain;
 }
 .pdp__cat {
   color: var(--lilac-deep);
@@ -1874,6 +1887,7 @@ img {
   color: var(--ink);
 }
 .pdp__foot {
+  scroll-margin-top: 7rem;
   margin-top: 2.3rem;
   display: flex;
   align-items: center;
@@ -2013,28 +2027,40 @@ img {
    ============================================================ */
 .cmq {
   position: relative;
+  height: 400vh;
+  overflow-x: clip;
+  background: var(--butter);
+}
+.cmq__stage {
+  position: relative;
+  width: 100%;
   height: 100vh;
   overflow: hidden;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  background: var(--butter);
+  justify-content: center;
 }
 .cmq__svg {
   position: relative;
   z-index: 1;
   flex: none;
-  width: 300vw;
+  width: 100%;
   height: auto;
-  will-change: transform;
+  overflow: visible;
+}
+.cmq__text,
+.cmq__fallback {
+  font-family: var(--font-display);
+  font-weight: 300;
+  letter-spacing: -0.03em;
 }
 .cmq__text {
-  font-family: var(--font-sans);
-  font-size: 96px; /* SVG user units (viewBox is 3000 wide) */
-  font-weight: 400;
-  letter-spacing: 1px;
+  font-size: 180px; /* SVG user units; the fixed wave spans a 1600-wide viewBox. */
   fill: #fff;
   dominant-baseline: middle;
+}
+.cmq__fallback {
+  display: none;
 }
 .cmq__blob {
   position: absolute;
@@ -2057,10 +2083,28 @@ img {
   pointer-events: none;
 }
 
-@media (max-width: 880px) {
-  /* no pin on small screens: show the wave + blob statically */
+@media (max-width: 880px), (prefers-reduced-motion: reduce) {
   .cmq {
-    height: 72vh;
+    height: auto;
+  }
+  .cmq__stage {
+    height: auto;
+    min-height: 60svh;
+    padding: clamp(5rem, 18vw, 10rem) var(--gutter);
+  }
+  .cmq__svg {
+    display: none;
+  }
+  .cmq__fallback {
+    display: block;
+    position: relative;
+    z-index: 1;
+    max-width: 14ch;
+    color: #fff;
+    font-size: clamp(3rem, 10vw, 7rem);
+    line-height: 1.05;
+    text-align: center;
+    text-wrap: balance;
   }
   .cmq__blob {
     left: 50%;
@@ -2071,10 +2115,9 @@ img {
 /* ============================================================
    reviews (pinned: title holds centre, cards scroll up past it)
    ============================================================ */
-/* Pure-CSS version: a sticky centred title + cards in normal document flow.
-   NOTHING here or above gets a transform/filter/will-change, so the cards'
-   frosted-glass backdrop-filter actually samples the page (a ScrollTrigger
-   pin would add a transform to the section and silently disable the frost). */
+/* Sticky centred title + staggered cards in normal document flow.
+   Motion.js moves the cards individually; keep the section and track free of
+   transforms/filters so their glass can sample the title behind them. */
 .reviews {
   position: relative;
   display: grid;
@@ -2100,29 +2143,30 @@ img {
 }
 .reviews__track {
   grid-area: stack;
-  z-index: 1;
+  /* Keep the track out of a separate stacking layer so cards sample the title. */
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(9vh, 14vh, 17vh);
+  gap: clamp(1.5rem, 4vh, 3rem);
+  width: 100%;
+  max-width: var(--maxw);
+  margin-inline: auto;
   padding-inline: var(--gutter);
-  padding-block: 52vh; /* room so the first/last cards cross screen centre */
+  padding-block: 52vh 18vh; /* first card crosses centre; CTA closes the sequence */
 }
 .rev {
-  width: clamp(300px, 36vw, 480px);
+  position: relative;
+  z-index: 1;
+  width: calc(50% - 1rem);
   margin: 0;
   padding: clamp(1.5rem, 2.3vw, 2.3rem);
   border-radius: 22px;
-  background: linear-gradient(
-    135deg,
-    rgba(214, 194, 244, 0.34),
-    rgba(185, 160, 228, 0.26)
-  );
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  -webkit-backdrop-filter: blur(24px) saturate(1.6);
-  backdrop-filter: blur(24px) saturate(1.6);
-  box-shadow: 0 34px 70px -38px rgba(60, 40, 90, 0.4),
-    inset 0 1px 1px rgba(255, 255, 255, 0.5);
+  /* Neutral white frost removes the butter cast while preserving the title. */
+  background: rgba(255, 255, 255, 0.48);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  -webkit-backdrop-filter: blur(2px) saturate(0);
+  backdrop-filter: blur(2px) saturate(0);
+  box-shadow: 0 14px 34px -20px rgba(28, 21, 48, 0.5);
 }
 .rev__stars {
   color: #7d60c6;
@@ -2152,13 +2196,15 @@ img {
   text-transform: none;
   opacity: 0.6;
 }
-/* scatter: cards sit near centre so they pass OVER the title (frosted glass
-   reveals the "Reviews" text through them), alternating slightly L/R + angles */
-.rev { align-self: center; }
-.rev:nth-child(odd) { translate: 16% 0; rotate: -4deg; }
-.rev:nth-child(even) { translate: -16% 0; rotate: 3deg; }
-.rev:nth-child(4n + 1) { translate: 22% 0; rotate: -3deg; }
-.rev:nth-child(4n + 3) { translate: -10% 0; rotate: 2deg; }
+.reviews__outro {
+  display: flex;
+  justify-content: center;
+  padding: clamp(2rem, 5vh, 4rem) var(--gutter) clamp(5rem, 12vh, 8rem);
+  background: var(--butter);
+}
+/* Stagger two columns: right, left, right, with the title behind them. */
+.rev:nth-child(odd) { align-self: flex-end; rotate: 3deg; }
+.rev:nth-child(even) { align-self: flex-start; rotate: -3deg; }
 
 @media (max-width: 880px) {
   /* static title on top, simple stacked column */

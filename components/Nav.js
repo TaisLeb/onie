@@ -4,24 +4,22 @@ import CartLink from "@/components/CartLink";
 export default function Nav() {
   return (
     <header className="nav">
-      <div className="nav__side">
-        <button className="nav__burger" aria-label="Menu">
-          <span />
-          <span />
-          <span />
-        </button>
-        <Link href="/#products" className="nav__link nav__link--hide">
+      <nav className="nav__side" aria-label="Primary">
+        <Link href="/" className="nav__link">
+          Home
+        </Link>
+        <Link href="/#products" className="nav__link">
           Shop
         </Link>
-        <Link href="/about" className="nav__link nav__link--hide">
+        <Link href="/about" className="nav__link">
           About
         </Link>
-      </div>
+      </nav>
       <Link href="/" className="nav__brand">
         onie beauty<span className="dot" />
       </Link>
       <div className="nav__side nav__side--right">
-        <Link href="/#contact" className="nav__link nav__link--hide">
+        <Link href="/#contact" className="nav__link">
           Contact
         </Link>
         <CartLink />

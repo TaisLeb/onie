@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const CATEGORIES = [
   {
@@ -99,6 +99,45 @@ export default function BlogClient() {
   const posts = showAll ? cat.posts : cat.posts.slice(0, INITIAL);
   const hasMore = cat.posts.length > INITIAL;
 
+  // Blog posts change when a category or the article count changes, so give
+  // their text the same masked line entrance as the static page copy.
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let activeEffect = true;
+    const splits = [];
+    Promise.all([
+      import("gsap"),
+      import("gsap/ScrollTrigger"),
+      import("gsap/SplitText"),
+    ]).then(([gsapMod, stMod, splitMod]) => {
+      if (!activeEffect) return;
+      const gsap = gsapMod.default || gsapMod;
+      const ScrollTrigger = stMod.ScrollTrigger || stMod.default;
+      const SplitText = splitMod.SplitText || splitMod.default;
+      gsap.registerPlugin(ScrollTrigger, SplitText);
+      document.querySelectorAll(".blog__list .post__title, .blog__list .post__meta, .blog__list .post__excerpt, .blog__list .post__read").forEach((el) => {
+        splits.push(SplitText.create(el, {
+          type: "lines",
+          mask: "lines",
+          linesClass: "site-reveal-line",
+          autoSplit: true,
+          onSplit: ({ lines }) => gsap.from(lines, {
+            yPercent: 115,
+            duration: 1.1,
+            ease: "power4.out",
+            stagger: 0.08,
+            scrollTrigger: { trigger: el, start: "top 88%", once: true },
+          }),
+        }));
+      });
+      ScrollTrigger.refresh();
+    });
+    return () => {
+      activeEffect = false;
+      splits.forEach((split) => split.revert());
+    };
+  }, [active, showAll]);
+
   const switchCat = (id) => {
     setActive(id);
     setShowAll(false);
@@ -120,7 +159,7 @@ export default function BlogClient() {
 
       <div className="blog__list">
         {posts.map((p) => (
-          <article className="post" key={p.title} data-reveal="fade">
+          <article className="post" key={p.title}>
             <div className="post__media">
               <img src={p.img} alt={p.title} loading="lazy" />
             </div>

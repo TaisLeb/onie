@@ -10,7 +10,7 @@ import { PRODUCTS, getProduct } from "@/lib/products";
 // fictional reviews — this is a portfolio concept site, not a real brand
 const REVIEWS = [
   {
-    quote: "My skin has never felt this soft. This is my whole evening ritual now.",
+    quote: "My skin has never felt this soft. I take a little extra time applying it after a long day, and that quiet moment has become my favourite part of the evening. Such a lovely ritual.",
     author: "Amara L.",
     handle: "verified buyer",
     stars: 5,
@@ -22,7 +22,7 @@ const REVIEWS = [
     stars: 5,
   },
   {
-    quote: "Woke up my dull winter skin in about a week. I'm genuinely impressed.",
+    quote: "Woke up my dull winter skin in about a week. I love the light texture, and a little is all I need each morning.",
     author: "Noa R.",
     handle: "verified buyer",
     stars: 4,
@@ -34,19 +34,19 @@ const REVIEWS = [
     stars: 5,
   },
   {
-    quote: "Packaging, texture, results — everything about it feels considered.",
+    quote: "From the first unboxing to the last little scoop, every detail feels thoughtful. The texture is beautiful, the packaging looks lovely on my shelf, and I always look forward to using it.",
     author: "Jordan M.",
     handle: "@jordanmakes",
     stars: 5,
   },
   {
-    quote: "Came for the aesthetic, stayed for what it did to my skin barrier.",
+    quote: "Came for the aesthetic, stayed for the soft finish. It fits so easily into my evening routine that I never skip it now.",
     author: "Lena K.",
     handle: "verified buyer",
     stars: 5,
   },
   {
-    quote: "Three weeks in and my texture is the smoothest it's been in years.",
+    quote: "Three weeks in and my skin feels so much smoother. I used to rush through my routine, but now I actually enjoy those few minutes to myself. It is a small everyday treat that feels special.",
     author: "Sofia T.",
     handle: "verified buyer",
     stars: 5,
@@ -58,7 +58,7 @@ const REVIEWS = [
     stars: 5,
   },
   {
-    quote: "Gentle enough for my reactive skin — nothing has flared up once.",
+    quote: "I like to keep my skincare simple, and this fits right in. A soft texture, a gentle finish, and no complicated extra steps.",
     author: "Hana W.",
     handle: "verified buyer",
     stars: 5,
@@ -70,13 +70,13 @@ const REVIEWS = [
     stars: 4,
   },
   {
-    quote: "The texture is like silk and the scent is so subtle and clean.",
+    quote: "The texture is like silk and the scent is so subtle. It melts in beautifully without that heavy feeling, even when I layer it with the rest of my routine. Already planning my next order.",
     author: "Rafael O.",
     handle: "@raf.o",
     stars: 5,
   },
   {
-    quote: "My dermatologist actually approved of it — that never happens.",
+    quote: "I was looking for something simple that I would enjoy using every day. This has earned a permanent place beside my sink.",
     author: "Yuki N.",
     handle: "verified buyer",
     stars: 5,
@@ -125,20 +125,22 @@ export default async function ProductPage({ params }) {
 
         {/* ---------- detail ---------- */}
         <section className="pdp__detail wrap">
-          <div className="pdp__media" data-reveal="fade">
+          <div className={`pdp__media pdp__media--${p.slug}`} data-reveal="fade">
             <span className="pdp__glow" style={{ "--c1": p.c1 }} />
             <img
               className="pdp__product"
               src={p.img}
               alt={`Onie Beauty ${p.product}`}
             />
-            <img
-              className="pdp__hover"
-              src="/img/cream-jar-open.webp"
-              alt=""
-              aria-hidden="true"
-              loading="lazy"
-            />
+            {p.slug === "nourish" && (
+              <img
+                className="pdp__hover"
+                src="/img/cream-jar-open.webp"
+                alt=""
+                aria-hidden="true"
+                loading="lazy"
+              />
+            )}
           </div>
 
           <div className="pdp__info">
@@ -164,7 +166,7 @@ export default async function ProductPage({ params }) {
               </ul>
             </div>
 
-            <div className="pdp__foot" data-reveal="fade" data-delay="0.2">
+            <div id="buy-product" className="pdp__foot" data-reveal="fade" data-delay="0.2">
               <span className="pdp__price">{p.price}</span>
               <ProductBuy
                 slug={p.slug}
@@ -179,24 +181,6 @@ export default async function ProductPage({ params }) {
 
         {/* ---------- editorial ---------- */}
         <section className="section wrap pdp__ed">
-          <div className="pdp__ed-stage" data-reveal="fade">
-            <div className="pdp__ed-photo" data-parallax="0.04">
-              <img
-                src="/img/story-woman.jpg"
-                alt="Onie Beauty ritual"
-                loading="lazy"
-              />
-            </div>
-            <div className="pdp__ed-swatch" data-parallax="0.42">
-              <img src="/img/mint-swatch.webp" alt="" loading="lazy" />
-            </div>
-            <span className="pdp__ed-ings" aria-hidden="true" data-parallax="0.24">
-              <img className="ei ei--1" src={p.behind[1]} alt="" loading="lazy" />
-              <img className="ei ei--2" src={p.behind[2]} alt="" loading="lazy" />
-              <img className="ei ei--3" src={p.behind[0]} alt="" loading="lazy" />
-            </span>
-          </div>
-
           <div className="pdp__ed-copy">
             <h2 className="pdp__ed-title display" data-reveal="lines">
               {p.editorial.title.map((line, i) => (
@@ -228,30 +212,54 @@ export default async function ProductPage({ params }) {
               <i className="btn__arrow" />
             </Link>
           </div>
+          <div className="pdp__ed-stage" data-reveal="fade">
+            <div className="pdp__ed-photo" data-parallax="0.04">
+              <img
+                src="/img/story-woman.jpg"
+                alt="Onie Beauty ritual"
+                loading="lazy"
+              />
+            </div>
+            {p.slug === "nourish" && (
+              <div className="pdp__ed-swatch" data-parallax="0.42">
+                <img src="/img/mint-swatch.webp" alt="" loading="lazy" />
+              </div>
+            )}
+            <span className="pdp__ed-ings" aria-hidden="true" data-parallax="0.24">
+              <img className="ei ei--1" src={p.behind[1]} alt="" loading="lazy" />
+              <img className="ei ei--2" src={p.behind[2]} alt="" loading="lazy" />
+              <img className="ei ei--3" src={p.behind[0]} alt="" loading="lazy" />
+            </span>
+          </div>
+
         </section>
 
         {/* ---------- running marquee ---------- */}
-        <section className="cmq" aria-label={p.tag}>
-          <span className="cmq__blob" aria-hidden="true" />
-          <svg
-            className="cmq__svg"
-            viewBox="0 0 3000 320"
-            preserveAspectRatio="xMidYMid meet"
-            aria-hidden="true"
-          >
-            <defs>
-              <path
-                id={`cmqwave-${p.slug}`}
-                d="M0,210 C250,138 500,138 760,210 S1270,282 1520,210 S2030,138 2280,210 S2790,282 3000,210"
-                fill="none"
-              />
-            </defs>
-            <text className="cmq__text">
-              <textPath href={`#cmqwave-${p.slug}`} startOffset="0">
-                {Array.from({ length: 7 }, () => p.tag).join("  ")}
-              </textPath>
-            </text>
-          </svg>
+        <section className="cmq" aria-labelledby={`cmq-title-${p.slug}`}>
+          <div className="cmq__stage">
+            <span className="cmq__blob" aria-hidden="true" />
+            <h2 id={`cmq-title-${p.slug}`} className="sr-only">{p.tag.toLowerCase()}</h2>
+            <svg
+              className="cmq__svg"
+              viewBox="0 0 1600 560"
+              preserveAspectRatio="xMidYMid meet"
+              aria-hidden="true"
+            >
+              <defs>
+                <path
+                  id={`cmqwave-${p.slug}`}
+                  d="M -6800 280 Q -6375 160 -5950 280 Q -5525 400 -5100 280 Q -4675 160 -4250 280 Q -3825 400 -3400 280 Q -2975 160 -2550 280 Q -2125 400 -1700 280 Q -1275 160 -850 280 Q -425 400 0 280 Q 425 160 850 280 Q 1275 400 1700 280 Q 2125 160 2550 280 Q 2975 400 3400 280 Q 3825 160 4250 280 Q 4675 400 5100 280 Q 5525 160 5950 280 Q 6375 400 6800 280 Q 7225 160 7650 280 Q 8075 400 8500 280"
+                  fill="none"
+                />
+              </defs>
+              <text className="cmq__text">
+                <textPath className="cmq__text-path" href={`#cmqwave-${p.slug}`} startOffset="6600">
+                  {Array.from({ length: 11 }, () => p.tag.toLowerCase()).join("  ")}
+                </textPath>
+              </text>
+            </svg>
+            <p className="cmq__fallback" aria-hidden="true">{p.tag.toLowerCase()}</p>
+          </div>
         </section>
 
         {/* ---------- reviews ---------- */}
@@ -276,6 +284,12 @@ export default async function ProductPage({ params }) {
             ))}
           </div>
         </section>
+        <div className="reviews__outro">
+          <Link href="#buy-product" className="btn reviews__cta">
+            <span>Shop {p.name}</span>
+            <i className="btn__arrow" aria-hidden="true" />
+          </Link>
+        </div>
       </main>
 
       <Footer />
