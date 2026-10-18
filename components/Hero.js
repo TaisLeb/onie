@@ -1,4 +1,28 @@
 import Liquid from "./Liquid";
+import HeroParallax from "./HeroParallax";
+
+function HeroTitleLines() {
+  return (
+    <>
+      <span className="reveal-line">
+        <span>
+          <span className="word">Reveal</span>{" "}
+          <span className="word">your</span>
+        </span>
+      </span>
+      <span className="reveal-line line2">
+        <span>
+          <em className="word">natural</em>
+        </span>
+      </span>
+      <span className="reveal-line line2">
+        <span>
+          <span className="word">glow</span>
+        </span>
+      </span>
+    </>
+  );
+}
 
 export default function Hero() {
   return (
@@ -17,6 +41,7 @@ export default function Hero() {
       </picture>
       {/* WebGL reveal (fades in over the fallback when supported) */}
       <Liquid />
+      <HeroParallax />
       <div className="hero__grain" aria-hidden="true" />
       <div className="hero__vignette" aria-hidden="true" />
 
@@ -28,22 +53,7 @@ export default function Hero() {
           </div>
 
           <h1 className="hero__title display" data-reveal="lines">
-            <span className="reveal-line">
-              <span>
-                <span className="word">Reveal</span>{" "}
-                <span className="word">your</span>
-              </span>
-            </span>
-            <span className="reveal-line line2">
-              <span>
-                <em className="word">natural</em>
-              </span>
-            </span>
-            <span className="reveal-line line2">
-              <span>
-                <span className="word">glow</span>
-              </span>
-            </span>
+            <HeroTitleLines />
           </h1>
         </div>
 

@@ -26,18 +26,6 @@ export default function Motion() {
 
     let mounted = true;
 
-    // ---- iridescent word hover: the colour pools at the cursor and flows
-    // across the word like liquid paint as the mouse moves ----
-    document.querySelectorAll(".hero__title .word").forEach((word) => {
-      const onWordMove = (e) => {
-        const r = word.getBoundingClientRect();
-        word.style.setProperty("--mx", ((e.clientX - r.left) / r.width) * 100 + "%");
-        word.style.setProperty("--my", ((e.clientY - r.top) / r.height) * 100 + "%");
-      };
-      word.addEventListener("pointermove", onWordMove, { passive: true });
-      cleanupFns.push(() => word.removeEventListener("pointermove", onWordMove));
-    });
-
     Promise.all([
       import("gsap"),
       import("gsap/ScrollTrigger"),

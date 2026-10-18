@@ -373,16 +373,9 @@ img {
 .nav__link:hover::after {
   width: 100%;
 }
-/* adaptive colouring: light text while over the dark hero */
 .nav {
   color: var(--ink);
   transition: color 0.5s var(--ease);
-}
-.nav--light {
-  color: var(--cream);
-}
-.nav--light .nav__brand .dot {
-  background: var(--lilac-bright);
 }
 
 @media (max-width: 720px) {
@@ -427,6 +420,8 @@ img {
   position: absolute;
   inset: 0;
   z-index: 0;
+  transform: translate3d(0, var(--hero-parallax-y, 0px), 0);
+  will-change: transform;
 }
 .hero__canvas canvas {
   display: block;
@@ -442,6 +437,8 @@ img {
   object-fit: cover;
   object-position: 70% center;
   z-index: 0;
+  transform: translate3d(0, var(--hero-parallax-y, 0px), 0);
+  will-change: transform;
 }
 .webgl-on .hero__portrait {
   display: none;
@@ -520,6 +517,8 @@ img {
   z-index: 1;
   pointer-events: none;
   background:
+    /* give the hero lettering a calmer, deeper lilac field at the left */
+    linear-gradient(90deg, rgba(38, 22, 65, 0.24), rgba(38, 22, 65, 0.08) 36%, transparent 62%),
     /* soft cream scrim at the top so the nav wordmark stays legible over hair */
     radial-gradient(
       60% 26% at 50% 0%,
@@ -534,11 +533,12 @@ img {
 }
 .hero__inner {
   position: relative;
-  z-index: 2;
   width: 100%;
   max-width: none; /* span full width so content aligns with the nav, not centered */
 }
 .hero__eyebrow {
+  position: relative;
+  z-index: 2;
   display: flex;
   align-items: center;
   gap: 0.8rem;
@@ -552,9 +552,13 @@ img {
   opacity: 0.4;
 }
 .hero__title {
+  position: relative;
+  z-index: 2;
+  color: var(--ink);
   font-size: clamp(2.04rem, 7.8vw, 7.8rem);
   line-height: 0.82;
   font-weight: 300;
+  text-shadow: 0 0 14px rgba(255, 250, 230, 0.42);
 }
 .hero__title em {
   font-style: italic;
@@ -563,36 +567,18 @@ img {
 .hero__title .line2 {
   padding-left: clamp(0rem, 14vw, 9rem);
 }
-/* the heading stays dark ink; on hover the cursor "paints" an iridescent
-   brush onto the letters it passes over (disc follows --mx/--my, fading back
-   to ink everywhere else) so moving the mouse paints the text like liquid */
-.hero__title .word {
-  -webkit-text-fill-color: currentColor;
-}
-.hero__title .word:hover {
-  background: radial-gradient(
-      circle 150px at var(--mx, 50%) var(--my, 50%),
-      color-mix(in srgb, #dccbf2 65%, var(--ink)) 0%,
-      color-mix(in srgb, #c9b3ec 65%, var(--ink)) 28%,
-      color-mix(in srgb, #af8fd7 60%, var(--ink)) 58%,
-      color-mix(in srgb, #8f6fc7 60%, var(--ink)) 80%,
-      var(--ink) 100%
-    );
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-}
-/* keep the tight stacked look but give each line box enough height that
-   overflow:hidden on the reveal lines doesn't clip descenders (y, g) */
+/* Keep the reveal mask while leaving space below the baseline for descenders. */
 .hero__title .reveal-line {
   line-height: 1.0;
-  margin-bottom: -0.2em;
+  padding-bottom: 0.26em;
+  margin-bottom: -0.46em;
 }
 .hero__lead {
   position: relative;
 }
 .hero__cta {
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -606,6 +592,8 @@ img {
   color: var(--ink);
 }
 .hero__scroll {
+  position: relative;
+  z-index: 2;
   display: flex;
   align-items: center;
   gap: 0.7rem;
@@ -627,7 +615,7 @@ img {
   .hero__cta {
     position: absolute;
     right: var(--gutter);
-    bottom: clamp(4rem, 13vh, 8rem);
+    bottom: clamp(1.25rem, 5vh, 4rem);
     width: min(36ch, 40%);
     margin-top: 0;
   }

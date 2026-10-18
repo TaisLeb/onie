@@ -259,9 +259,9 @@ const FRAG = /* glsl */ `
     // ================= animated lavender BACKGROUND =================
     // her cut-out sits on top of this; the field drifts behind her, echoing
     // the soft lilac studio backdrop but alive.
-    vec3 lavMid  = vec3(0.74, 0.65, 0.84);
-    vec3 lavHi   = vec3(0.96, 0.93, 0.98);
-    vec3 lavDeep = vec3(0.54, 0.42, 0.72);
+    vec3 lavMid  = vec3(0.66, 0.55, 0.79);
+    vec3 lavHi   = vec3(0.87, 0.80, 0.93);
+    vec3 lavDeep = vec3(0.47, 0.35, 0.66);
     vec3 bg = mix(lavDeep, lavMid, smoothstep(-0.10, 0.90, uv.y)); // soft vertical base
     bg = mix(bg, lavHi, smoothstep(0.10, 0.95, v) * 0.7);          // gentle drifting pools
 
@@ -292,7 +292,7 @@ const FRAG = /* glsl */ `
     // spectral colour cycles along the ribbons (rainbow separation)
     vec3 spectrum = 0.5 + 0.5 * cos(6.28318 * (vec3(0.0, 0.33, 0.67) + rayCoord * 0.42 + t * 0.1));
     spectrum = mix(vec3(0.97, 0.95, 1.0), spectrum, 0.78);        // saturated but still pastel
-    float irMask = ray * 0.9;                                     // ribbon intensity (knob)
+    float irMask = ray * 0.72;                                    // ribbon intensity (knob)
     irMask *= smoothstep(1.25, -0.1, uv.x);                       // strongest on the left, fading across
     bg = 1.0 - (1.0 - bg) * (1.0 - spectrum * irMask);            // screen-blend the spectral light
 
