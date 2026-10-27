@@ -191,6 +191,7 @@ export default function Home() {
 
             <div className="story__copycol">
               <article className="story__copy is-active" data-copy="1">
+                <img className="story__mobile-image" src="/img/slider-1.webp" alt="Maria and Claire, founders of Onie Beauty" loading="lazy" />
                 <p className="eyebrow">The story of Onie Beauty</p>
                 <h2 className="story__title">
                   It all started<br />with a passion for{" "}
@@ -207,6 +208,7 @@ export default function Home() {
               </article>
 
               <article className="story__copy" data-copy="2">
+                <img className="story__mobile-image" src="/img/slider-2.webp" alt="Natural botanical ingredients" loading="lazy" />
                 <p className="eyebrow">The story of Onie Beauty</p>
                 <h2 className="story__title">
                   Good things take root<br />in <em>good places</em>
@@ -225,6 +227,7 @@ export default function Home() {
 
               <article className="story__copy" data-copy="3">
                 <span className="story__cta-glow" aria-hidden="true" />
+                <img className="story__mobile-image" src="/img/slider-3.webp" alt="Onie Beauty creams and botanicals" loading="lazy" />
                 <p className="eyebrow">The story of Onie Beauty</p>
                 <h2 className="story__title">
                   Nothing extra.<br />

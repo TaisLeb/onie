@@ -26,6 +26,34 @@ export default function Motion() {
 
     let mounted = true;
 
+    // ---- hide the nav on scroll-down, reveal it on scroll-up ----
+    const nav = document.querySelector(".nav");
+    if (nav) {
+      let lastY = window.scrollY;
+      let ticking = false;
+      const onNavScroll = () => {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(() => {
+          const y = window.scrollY;
+          const diff = y - lastY;
+          if (y < 80) {
+            nav.classList.remove("nav--hidden"); // always visible near the top
+          } else if (diff > 6) {
+            nav.classList.add("nav--hidden"); // scrolling down
+          } else if (diff < -6) {
+            nav.classList.remove("nav--hidden"); // scrolling up
+          }
+          lastY = y;
+          ticking = false;
+        });
+      };
+      window.addEventListener("scroll", onNavScroll, { passive: true });
+      cleanupFns.push(() =>
+        window.removeEventListener("scroll", onNavScroll)
+      );
+    }
+
     Promise.all([
       import("gsap"),
       import("gsap/ScrollTrigger"),
@@ -80,7 +108,6 @@ export default function Motion() {
               if (el.closest('[aria-hidden="true"], [data-reveal="lines"], .cmq, .blog__body, .cart__items, .cart__empty, .cart__lines, .cart__total, .news__form, .news__note')) return;
               if (el.querySelector("input, button, a, svg")) return;
               const storyCopy = el.closest(".story__copy");
-              if (storyCopy && !storyDesktop && !storyCopy.classList.contains("is-active")) return;
               splitTargets.add(el);
               const split = SplitText.create(el, {
                 type: "lines",
