@@ -65,7 +65,7 @@ export default function Nav({ heroOverlay = false }) {
       </button>
 
       <Link href="/" className="nav__brand" onClick={() => setMenuOpen(false)}>
-        onie beauty<span className="dot" />
+        <span className="nav__brand-text">onie beauty</span><span className="dot" />
       </Link>
 
       <div className="nav__side nav__side--right">
