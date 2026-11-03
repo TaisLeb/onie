@@ -37,7 +37,7 @@ export default function Motion() {
         requestAnimationFrame(() => {
           const y = window.scrollY;
           const diff = y - lastY;
-          if (y < 80) {
+          if (nav.classList.contains("nav--open") || y < 80) {
             nav.classList.remove("nav--hidden"); // always visible near the top
           } else if (diff > 6) {
             nav.classList.add("nav--hidden"); // scrolling down
@@ -87,7 +87,6 @@ export default function Motion() {
           // static page copy. Keep existing reveals and interactive/dynamic
           // regions intact so their own motion and React updates still work.
           const splitTargets = new Set();
-          const storyDesktop = window.innerWidth > 880;
           const storyCopyTweens = new Map();
           const revealedStoryCopies = new Set();
           const revealStoryCopy = (copy) => {
@@ -121,7 +120,7 @@ export default function Motion() {
                     ease: "power4.out",
                     stagger: 0.08,
                   };
-                  if (storyCopy && storyDesktop) {
+                  if (storyCopy && window.innerWidth > 880) {
                     const tween = gsap.from(lines, { ...entrance, paused: true });
                     storyCopyTweens.set(el, tween);
                     if (revealedStoryCopies.has(storyCopy)) tween.progress(1);
@@ -228,7 +227,10 @@ export default function Motion() {
           const storyEl = document.querySelector(".story");
           const cards = gsap.utils.toArray(".story__card");
           const copies = gsap.utils.toArray(".story__copy");
-          if (storyEl && cards.length === 3 && storyDesktop) {
+          const storyMedia = gsap.matchMedia();
+          cleanupFns.push(() => storyMedia.revert());
+          storyMedia.add("(min-width: 881px)", () => {
+            if (!storyEl || cards.length !== 3) return;
             ScrollTrigger.create({
               trigger: storyEl,
               start: "top 85%",
@@ -262,7 +264,7 @@ export default function Motion() {
             stl.to(cards[2], { yPercent: 0, ease: "none", duration: 0.65 }, 1);
             stl.to(copies[1], { opacity: 0, ease: "none", duration: 0.25 }, 1.2);
             stl.to(copies[2], { opacity: 1, ease: "none", duration: 0.25 }, 1.55);
-          }
+          });
 
           // Keep the wave fixed; scroll moves the glyphs along its SVG path.
           const cmq = document.querySelector(".cmq");

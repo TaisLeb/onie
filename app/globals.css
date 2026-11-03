@@ -382,46 +382,120 @@ img {
 .nav--hidden {
   transform: translateY(-100%);
 }
+.nav__menu-toggle,
+.nav__dropdown {
+  display: none;
+}
 
 @media (max-width: 720px) {
   .nav {
-    grid-template-columns: 1fr auto;
-    row-gap: 0.1rem;
-    padding-block: 0.35rem 0.2rem;
-    background: rgba(241, 236, 182, 0.88);
+    grid-template-columns: 4rem minmax(0, 1fr) 4rem;
+    min-height: 4rem;
+    padding: 0.4rem var(--gutter);
+    background: rgba(241, 236, 182, 0.94);
     border-bottom: 1px solid rgba(28, 21, 48, 0.08);
     -webkit-backdrop-filter: blur(18px) saturate(1.1);
     backdrop-filter: blur(18px) saturate(1.1);
   }
-  .nav__brand {
-    grid-column: 1 / -1;
-    grid-row: 1;
-    font-size: clamp(1.75rem, 7vw, 2rem);
+  .nav--open {
+    transform: none;
   }
-  .nav__side {
+  .nav__side:not(.nav__side--right) {
+    display: none;
+  }
+  .nav__menu-toggle {
     grid-column: 1;
-    grid-row: 2;
-    gap: clamp(0.05rem, 1vw, 0.5rem);
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 7px;
+    width: 44px;
+    height: 44px;
+    cursor: pointer;
+  }
+  .nav__menu-toggle span {
+    width: 25px;
+    height: 2px;
+    background: currentColor;
+    border-radius: 2px;
+    transform-origin: center;
+    transition: transform 0.3s var(--ease);
+  }
+  .nav--open .nav__menu-toggle span:first-child {
+    transform: translateY(4.5px) rotate(45deg);
+  }
+  .nav--open .nav__menu-toggle span:last-child {
+    transform: translateY(-4.5px) rotate(-45deg);
+  }
+  .nav__brand {
+    grid-column: 2;
+    grid-row: 1;
+    font-size: clamp(1.55rem, 7vw, 2rem);
+    white-space: nowrap;
   }
   .nav__side--right {
-    grid-column: 2;
-    gap: clamp(0.05rem, 1vw, 0.5rem);
+    grid-column: 3;
+    grid-row: 1;
+    gap: 0;
   }
-  .nav__link {
+  .nav__side--right > .nav__link:not(.nav__cart) {
+    display: none;
+  }
+  .nav__cart {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     min-height: 44px;
-    padding-inline: 0.25rem;
-    font-size: 0.68rem;
-    letter-spacing: 0.08em;
+    min-width: 44px;
+    font-size: 0.65rem;
+    letter-spacing: 0.04em;
   }
-  .nav__link::after {
-    bottom: 5px;
+  .nav__dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    display: grid;
+    padding: 0.5rem var(--gutter) 1rem;
+    background: rgba(241, 236, 182, 0.98);
+    border-bottom: 1px solid rgba(28, 21, 48, 0.14);
+    box-shadow: 0 20px 30px rgba(28, 21, 48, 0.12);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    animation: nav-dropdown-in 0.28s var(--ease) both;
+  }
+  .nav__dropdown-link {
+    display: flex;
+    align-items: center;
+    min-height: 52px;
+    border-bottom: 1px solid rgba(28, 21, 48, 0.12);
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .nav__dropdown-link:last-child {
+    border-bottom: 0;
+  }
+  .nav__menu-toggle:focus-visible,
+  .nav__dropdown-link:focus-visible {
+    outline: 2px solid var(--violet);
+    outline-offset: 3px;
   }
   .nav__cart-badge {
     top: 0;
     right: -0.45em;
   }
+}
+@keyframes nav-dropdown-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav__dropdown { animation: none; }
+  .nav__menu-toggle span { transition: none; }
 }
 
 /* ============================================================
@@ -1424,6 +1498,11 @@ img {
     pointer-events: auto;
     width: 100%;
     max-width: none;
+  }
+  /* A viewport resize can leave desktop SplitText lines parked below their
+     masks; the stacked mobile story must always expose its copy. */
+  .story__copy .site-reveal-line {
+    transform: none !important;
   }
   .story__mobile-image {
     display: block;
@@ -2933,6 +3012,12 @@ img {
     letter-spacing: 0.14em;
     line-height: 1.5;
   }
+  .hero__title {
+    font-size: clamp(3.05rem, 12.5vw, 5rem);
+  }
+  .hero__title .line2 {
+    padding-left: clamp(1.5rem, 11vw, 4rem);
+  }
   .hero__cta {
     gap: 1.25rem;
     margin-top: 1.4rem;
@@ -2943,6 +3028,24 @@ img {
   }
   .hero__scroll {
     margin-top: 1.5rem;
+  }
+  .story__stage {
+    padding-block: 2.75rem 3.5rem;
+  }
+  .story__copycol {
+    gap: 2rem;
+  }
+  .story__copy {
+    justify-content: flex-start;
+  }
+  .story__mobile-image {
+    margin-bottom: 1.2rem;
+  }
+  .story__copy .eyebrow {
+    margin-bottom: 0.8rem;
+  }
+  .story__body {
+    margin-top: 1.15rem;
   }
   .pdp,
   .about,
