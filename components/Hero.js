@@ -59,8 +59,13 @@ export default function Hero() {
 
         <div className="hero__cta">
           <p className="hero__lede" data-reveal="fade" data-delay="0.15">
-            Skincare designed to bring out the best in you — just powerful,
-            living ingredients that Mother Nature gifted us.
+            <span className="hero__lede-desktop">
+              Skincare designed to bring out the best in you — just powerful,
+              living ingredients that Mother Nature gifted us.
+            </span>
+            <span className="hero__lede-mobile">
+              Skincare designed to bring out the best in you.
+            </span>
           </p>
 
           <a

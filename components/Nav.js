@@ -11,9 +11,22 @@ const mobileLinks = [
   ["Contact", "/#contact"],
 ];
 
-export default function Nav() {
+export default function Nav({ heroOverlay = false }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [overHero, setOverHero] = useState(heroOverlay);
   const headerRef = useRef(null);
+
+  useEffect(() => {
+    if (!heroOverlay) return;
+    const hero = document.querySelector(".hero");
+    if (!hero) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setOverHero(entry.isIntersecting),
+      { rootMargin: "-64px 0px 0px 0px" }
+    );
+    observer.observe(hero);
+    return () => observer.disconnect();
+  }, [heroOverlay]);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -32,7 +45,7 @@ export default function Nav() {
   }, [menuOpen]);
 
   return (
-    <header ref={headerRef} className={`nav${menuOpen ? " nav--open" : ""}`}>
+    <header ref={headerRef} className={`nav${menuOpen ? " nav--open" : ""}${heroOverlay && overHero ? " nav--hero" : ""}`}>
       <nav className="nav__side" aria-label="Primary">
         <Link href="/" className="nav__link">Home</Link>
         <Link href="/#products" className="nav__link">Shop</Link>
@@ -67,6 +80,7 @@ export default function Nav() {
               {label}
             </Link>
           ))}
+          {heroOverlay && <div className="nav__dropdown-cart"><CartLink /></div>}
         </nav>
       )}
     </header>

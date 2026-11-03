@@ -16,7 +16,8 @@ export default function Liquid() {
     const reduce = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
-    if (reduce) return;
+    // The phone composition uses a deliberate close crop of the static portrait.
+    if (reduce || window.matchMedia("(max-width: 720px)").matches) return;
 
     let supported = false;
     try {

@@ -15,7 +15,7 @@ export default function Home() {
       <Loader />
       <Cursor />
       <Motion />
-      <Nav />
+      <Nav heroOverlay />
 
       <main>
         <Hero />
