@@ -3150,7 +3150,7 @@ img {
     padding-block: 2.75rem 3.5rem;
   }
   .story__copycol {
-    gap: 2rem;
+    gap: 6rem;
   }
   .story__copy {
     justify-content: flex-start;
@@ -3204,16 +3204,78 @@ img {
     letter-spacing: 0.08em;
   }
   .quote {
-    min-height: auto;
-    padding-block: 5rem 6rem;
+    min-height: clamp(900px, 235vw, 1100px);
+    padding-block: 0;
+    overflow: hidden;
+  }
+  .quote__scatter {
+    display: block;
+  }
+  .quote__scatter .scatter {
+    display: none;
+    transform: translate(-50%, -50%) !important;
+    will-change: auto;
+  }
+  .quote__scatter .scatter__card {
+    animation: none;
+  }
+  .quote__scatter .s1,
+  .quote__scatter .s2,
+  .quote__scatter .s10,
+  .quote__scatter .s11,
+  .quote__scatter .s12 {
+    display: block;
+  }
+  .quote__scatter .s1 {
+    left: 20%;
+    top: 25%;
+    --w: 40%;
+    --ar: 2/3;
+  }
+  .quote__scatter .s12 {
+    left: 85%;
+    top: 14%;
+    --w: 30%;
+    --ar: 3/4;
+  }
+  .quote__scatter .s2 {
+    left: 9%;
+    top: 69%;
+    --w: 25%;
+    --ar: 2/3;
+  }
+  .quote__scatter .s11 {
+    left: 79%;
+    top: 75%;
+    --w: 43%;
+    --ar: 3/4;
+  }
+  .quote__scatter .s10 {
+    left: 43%;
+    top: 85%;
+    --w: 31%;
+    --ar: 4/5;
+  }
+  .quote__mark {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translateX(-50%);
   }
   .quote__text {
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    translate: -50% 0;
+    width: calc(100% - 2.5rem);
+    max-width: 24ch;
+    margin: 0;
     font-size: clamp(1.6rem, 6vw, 2.4rem);
   }
   .quote__cta {
-    position: static;
-    transform: none;
-    margin-top: 2.5rem;
+    top: auto;
+    bottom: 2rem;
+    transform: translateX(-50%);
   }
   .news__form {
     gap: 0.5rem;
@@ -3296,5 +3358,20 @@ img {
   .cart__form,
   .cart__summary {
     padding: 1.25rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .quote {
+    min-height: 980px;
+  }
+  .quote__scatter .s2 {
+    top: 75%;
+  }
+  .quote__scatter .s11 {
+    top: 79%;
+  }
+  .quote__scatter .s10 {
+    top: 88%;
   }
 }
