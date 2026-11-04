@@ -2993,6 +2993,12 @@ img {
   :root {
     --section-pad: 4.5rem;
   }
+  .manifesto {
+    padding-bottom: 3rem;
+  }
+  #products {
+    padding-top: 3rem;
+  }
   .nav--hero {
     background: transparent;
     border-bottom: 0;
