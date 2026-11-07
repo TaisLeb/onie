@@ -12,11 +12,7 @@ function HeroTitleLines() {
       </span>
       <span className="reveal-line line2">
         <span>
-          <em className="word">natural</em>
-        </span>
-      </span>
-      <span className="reveal-line line2">
-        <span>
+          <em className="word">natural</em>{" "}
           <span className="word">glow</span>
         </span>
       </span>
@@ -60,8 +56,7 @@ export default function Hero() {
         <div className="hero__cta">
           <p className="hero__lede" data-reveal="fade" data-delay="0.15">
             <span className="hero__lede-desktop">
-              Skincare designed to bring out the best in you — just powerful,
-              living ingredients that Mother Nature gifted us.
+              Skincare designed to bring out the best in you.
             </span>
             <span className="hero__lede-mobile">
               Skincare designed to bring out the best in you.
@@ -80,7 +75,7 @@ export default function Hero() {
           </a>
         </div>
 
-        <div className="hero__scroll" aria-hidden="true">
+        <div className="hero__scroll type--scroll" aria-hidden="true">
           <span>Scroll</span>
           <span className="bar" />
         </div>

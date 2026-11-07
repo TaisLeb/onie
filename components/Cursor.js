@@ -62,14 +62,18 @@ export default function Cursor() {
     loop();
 
     const over = (e) => {
-      if (e.target.closest("a, button, [data-magnetic], input")) {
+      const target = e.target.closest("a, button, [data-magnetic], input");
+      if (target) {
         el.classList.add("is-hover");
-        targetSize = 84;
+        const onCard = target.classList.contains("card");
+        el.classList.toggle("is-card-hover", onCard);
+        targetSize = onCard ? 48 : 84;
       }
     };
     const out = (e) => {
       if (e.target.closest("a, button, [data-magnetic], input")) {
         el.classList.remove("is-hover");
+        el.classList.remove("is-card-hover");
         targetSize = 48;
       }
     };

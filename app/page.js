@@ -29,11 +29,108 @@ export default function Home() {
             </em>{" "}
             your natural beauty.
           </p>
-          <div className="manifesto__cta" data-reveal="fade" data-delay="0.1">
-            <a href="#products" className="btn">
-              <span>Shop products</span>
-              <i className="btn__arrow" />
-            </a>
+        </section>
+
+        {/* ---------- meadow → portrait ---------- */}
+        <section className="meadow" aria-label="Where it begins">
+          <div className="meadow__stage">
+            <figure className="meadow__field">
+              {/* camera-move clip: plays through, box grows/shrinks on scroll */}
+              <video
+                className="meadow__video"
+                poster="/img/meadow-poster.webp?v=2"
+                muted
+                playsInline
+                preload="auto"
+                aria-hidden="true"
+              >
+                <source src="/video/meadow.webm?v=2" type="video/webm" />
+                <source src="/video/meadow.mp4?v=2" type="video/mp4" />
+              </video>
+              {/* resting square: a separate side-view meadow loop, fades out as
+                  the field grows to reveal the camera-move clip above */}
+              <video
+                className="meadow__square"
+                poster="/img/meadow-square-poster.webp?v=1"
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="auto"
+                aria-hidden="true"
+              >
+                <source src="/video/meadow-square.webm?v=1" type="video/webm" />
+                <source src="/video/meadow-square.mp4?v=1" type="video/mp4" />
+              </video>
+              {/* docked card: a dedicated single-flower loop, shown once the
+                  field shrinks to the little card on the left */}
+              <video
+                className="meadow__flower"
+                poster="/img/meadow-flower-poster.webp?v=1"
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="auto"
+                aria-hidden="true"
+                data-hidden="true"
+              >
+                <source src="/video/meadow-flower.webm?v=1" type="video/webm" />
+                <source src="/video/meadow-flower.mp4?v=1" type="video/mp4" />
+              </video>
+              <p className="meadow__line meadow__line--a">
+                <span className="reveal-line">
+                  <span>Everything we</span>
+                </span>
+                <span className="reveal-line">
+                  <span>make…</span>
+                </span>
+              </p>
+              <p className="meadow__line meadow__line--b">
+                <span className="reveal-line">
+                  <span>…starts in a field</span>
+                </span>
+                <span className="reveal-line">
+                  <span>like this</span>
+                </span>
+              </p>
+              <p className="meadow__line meadow__line--c">
+                <span className="reveal-line">
+                  <span>…and ends on your skin.</span>
+                </span>
+              </p>
+            </figure>
+            <figure className="meadow__portrait" aria-hidden="true">
+              {/* draggable before / after reveal */}
+              <div className="ba ba--card">
+                <div className="ba__viewport">
+                  {/* after (base, revealed on the right): redhead */}
+                  <img className="ba__img ba__after" src="/img/ba-after.webp?v=1" alt="" loading="lazy" />
+                  {/* before (clipped to the left): auburn portrait */}
+                  <img className="ba__img ba__before" src="/img/meadow-portrait.webp?v=2" alt="" loading="lazy" />
+                  <span className="ba__tag ba__tag--before">Before</span>
+                  <span className="ba__tag ba__tag--after">After</span>
+                  <div className="ba__divider">
+                    <span className="ba__handle"><span aria-hidden="true">&#8596;</span></span>
+                  </div>
+                </div>
+                <p className="ba__note">*results observed after 9 hours during clinical study on 45 participants</p>
+                <ul className="ba__stats">
+                  <li><span className="ba__stat-num">&#8722;22.8&#8201;%</span><span className="ba__stat-label">Forehead lines</span></li>
+                  <li><span className="ba__stat-num">&#8722;18.4&#8201;%</span><span className="ba__stat-label">Crow&rsquo;s feet</span></li>
+                  <li><span className="ba__stat-num">&#8722;24&#8201;%</span><span className="ba__stat-label">Pigmentation</span></li>
+                  <li><span className="ba__stat-num">+20.5&#8201;%</span><span className="ba__stat-label">Skin elasticity</span></li>
+                </ul>
+              </div>
+            </figure>
+            <p className="meadow__caption meadow__caption--a">
+              <span>Six field</span>
+              <span>botanicals,</span>
+            </p>
+            <p className="meadow__caption meadow__caption--b">
+              <span>48 hours of</span>
+              <span>deep hydration.</span>
+            </p>
           </div>
         </section>
 
@@ -64,9 +161,7 @@ export default function Home() {
                 href={`/products/${p.slug}`}
                 className={`card card--${p.slug}`}
                 key={p.slug}
-                style={{ "--c1": p.c1 }}
               >
-                <span className="card__glow" />
                 <div className="card__top">
                   <h3 className="card__name">{p.name}</h3>
                   <p className="card__tag">{p.tag}</p>
@@ -94,6 +189,121 @@ export default function Home() {
             ))}
           </div>
         </section>
+
+        {/* ---------- story (scroll-stacked slider) ---------- */}
+        <section className="story" id="story">
+          <div className="story__stage wrap">
+            <h2 className="story__heading display">
+              The story of<br />Onie Beauty
+            </h2>
+            <span className="story__count" aria-hidden="true">
+              <em data-count>1</em>/3
+            </span>
+
+            <div className="story__marquee-clip" aria-hidden="true">
+              <svg className="story__marquee cmq__svg" viewBox="0 0 1600 560" preserveAspectRatio="xMidYMid meet">
+                <defs>
+                  <path
+                    id="story-wave"
+                    d="M -6800 280 Q -6375 160 -5950 280 Q -5525 400 -5100 280 Q -4675 160 -4250 280 Q -3825 400 -3400 280 Q -2975 160 -2550 280 Q -2125 400 -1700 280 Q -1275 160 -850 280 Q -425 400 0 280 Q 425 160 850 280 Q 1275 400 1700 280 Q 2125 160 2550 280 Q 2975 400 3400 280 Q 3825 160 4250 280 Q 4675 400 5100 280 Q 5525 160 5950 280 Q 6375 400 6800 280 Q 7225 160 7650 280 Q 8075 400 8500 280"
+                    fill="none"
+                  />
+                </defs>
+                <text className="cmq__text">
+                  <textPath className="story__text-path cmq__text-path" href="#story-wave" startOffset="6600">
+                    {Array.from({ length: 11 }, () => "healthy living").join("  ")}
+                  </textPath>
+                </text>
+              </svg>
+            </div>
+
+            <div className="story__scene">
+              <div className="story__media">
+                <figure className="story__card is-active" data-card="1">
+                  <img src="/img/slider-1.webp" alt="Maria and Claire, founders of Onie Beauty" loading="lazy" />
+                  <figcaption className="story__cap">&mdash; Maria &amp; Claire, founders</figcaption>
+                </figure>
+                <figure className="story__card" data-card="2">
+                  <img src="/img/slider-2.webp" alt="Natural botanical ingredients" loading="lazy" />
+                  <figcaption className="story__cap">&mdash; Chosen for what they do</figcaption>
+                </figure>
+                <figure className="story__card" data-card="3">
+                  <img src="/img/story-lavender-dropper-serum.webp" alt="Lavender dropper and golden serum in a skincare lab" loading="lazy" />
+                  <figcaption className="story__cap">&mdash; Made to be used daily</figcaption>
+                </figure>
+              </div>
+
+              <div className="story__copycol">
+                <article className="story__copy is-active" data-copy="1">
+                  <figure className="story__mobile-image">
+                    <img src="/img/slider-1.webp" alt="Maria and Claire, founders of Onie Beauty" loading="lazy" />
+                    <figcaption>— Maria &amp; Claire, founders</figcaption>
+                  </figure>
+                  <div className="story__text-block">
+                    <h3 className="story__title display">
+                      It all started with a passion for <em>healthy living</em>
+                    </h3>
+                    <p className="story__body">
+                      We wanted to create the healthiest cosmetic brand out there —
+                      one that simply highlights the natural beauty each of us
+                      possesses. Cosmetics without chemical elements that cultivate
+                      dependency. Just organic, biodynamic, powerful ingredients
+                      that are potent at doing their job.
+                    </p>
+                  </div>
+                </article>
+
+                <article className="story__copy" data-copy="2">
+                  <figure className="story__mobile-image">
+                    <img src="/img/slider-2.webp" alt="Natural botanical ingredients" loading="lazy" />
+                    <figcaption>— Chosen for what they do</figcaption>
+                  </figure>
+                  <div className="story__text-block">
+                    <h3 className="story__title display">
+                      Good things take root in <em>good places</em>
+                    </h3>
+                    <p className="story__body">
+                      Nature has always been our starting point. From soothing
+                      botanicals to nourishing plant oils, we choose ingredients for
+                      what they bring to your skin, not just how lovely they sound on
+                      a label.
+                    </p>
+                    <p className="story__body">
+                      Every ingredient has a reason to be here. And if it
+                      doesn&rsquo;t? It doesn&rsquo;t make the cut.
+                    </p>
+                  </div>
+                </article>
+
+                <article className="story__copy" data-copy="3">
+                  <figure className="story__mobile-image">
+                    <img src="/img/story-lavender-dropper-serum.webp" alt="Lavender dropper and golden serum in a skincare lab" loading="lazy" />
+                    <figcaption>— Made to be used daily</figcaption>
+                  </figure>
+                  <div className="story__text-block">
+                    <h3 className="story__title display">
+                      Nothing extra. <em>Everything considered.</em>
+                    </h3>
+                    <p className="story__body">
+                      We believe skincare should feel as good as it is thoughtful.
+                      That&rsquo;s why we focus on purposeful formulas, ingredients
+                      that work beautifully together, and textures you&rsquo;ll
+                      actually look forward to using.
+                    </p>
+                  </div>
+                </article>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <div className="story__cta" data-reveal="fade">
+          <a href="/#products" className="btn btn--solid">
+            <span>Shop the collection</span>
+            <i className="btn__arrow" />
+          </a>
+        </div>
 
         {/* ---------- spotlight ---------- */}
         <section className="section wrap">
@@ -150,7 +360,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="stage" aria-hidden="true">
+              <div className="stage" aria-hidden="true" data-reveal="fade">
                 <div className="stage__product stage__product--video">
                   <video
                     className="stage__video"
@@ -159,9 +369,10 @@ export default function Home() {
                     loop
                     playsInline
                     preload="metadata"
-                    poster="/img/featured-poster.jpg"
+                    poster="/img/featured-orange-poster.webp"
                   >
-                    <source src="/video/featured.mp4" type="video/mp4" />
+                    <source src="/video/featured-orange.webm" type="video/webm" />
+                    <source src="/video/featured-orange.mp4" type="video/mp4" />
                     {/* fallback for browsers that can't play the video */}
                     <img
                       src="/img/cream-tube.png"
@@ -170,86 +381,6 @@ export default function Home() {
                   </video>
                 </div>
               </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ---------- story (scroll-stacked slider) ---------- */}
-        <section className="story" id="story">
-          <div className="story__stage wrap">
-            <div className="story__media">
-              <div className="story__card" data-card="1">
-                <img src="/img/slider-1.webp" alt="Maria and Claire, founders of Onie Beauty" loading="lazy" />
-              </div>
-              <div className="story__card" data-card="2">
-                <img src="/img/slider-2.webp" alt="Natural botanical ingredients" loading="lazy" />
-              </div>
-              <div className="story__card" data-card="3">
-                <img src="/img/slider-3.webp" alt="Onie Beauty creams and botanicals" loading="lazy" />
-              </div>
-            </div>
-
-            <div className="story__copycol">
-              <article className="story__copy is-active" data-copy="1">
-                <img className="story__mobile-image" src="/img/slider-1.webp" alt="Maria and Claire, founders of Onie Beauty" loading="lazy" />
-                <p className="eyebrow">The story of Onie Beauty</p>
-                <h2 className="story__title">
-                  It all started<br />with a passion for{" "}
-                  <em>healthy living</em>
-                </h2>
-                <p className="story__body">
-                  We wanted to create the healthiest cosmetic brand out there —
-                  one that simply highlights the natural beauty each of us
-                  possesses. Cosmetics without chemical elements that cultivate
-                  dependency. Just organic, biodynamic, powerful ingredients
-                  that are potent at doing their job.
-                </p>
-                <p className="story__sign">— Maria &amp; Claire, founders</p>
-              </article>
-
-              <article className="story__copy" data-copy="2">
-                <img className="story__mobile-image" src="/img/slider-2.webp" alt="Natural botanical ingredients" loading="lazy" />
-                <p className="eyebrow">The story of Onie Beauty</p>
-                <h2 className="story__title">
-                  Good things take root<br />in <em>good places</em>
-                </h2>
-                <p className="story__body">
-                  Nature has always been our starting point. From soothing
-                  botanicals to nourishing plant oils, we choose ingredients for
-                  what they bring to your skin, not just how lovely they sound on
-                  a label.
-                </p>
-                <p className="story__body">
-                  Every ingredient has a reason to be here. And if it
-                  doesn&rsquo;t? It doesn&rsquo;t make the cut.
-                </p>
-              </article>
-
-              <article className="story__copy" data-copy="3">
-                <span className="story__cta-glow" aria-hidden="true" />
-                <img className="story__mobile-image" src="/img/slider-3.webp" alt="Onie Beauty creams and botanicals" loading="lazy" />
-                <p className="eyebrow">The story of Onie Beauty</p>
-                <h2 className="story__title">
-                  Nothing extra.<br />
-                  <em>Everything considered.</em>
-                </h2>
-                <p className="story__body">
-                  We believe skincare should feel as good as it is thoughtful.
-                  That&rsquo;s why we focus on purposeful formulas, ingredients
-                  that work beautifully together, and textures you&rsquo;ll
-                  actually look forward to using.
-                </p>
-                <p className="story__body">
-                  No complicated routines. No chasing perfection. Just good
-                  skincare that lets your natural beauty do its thing.
-                </p>
-                <div className="story__cta">
-                  <a href="/#products" className="btn btn--solid">
-                    <span>Shop the collection</span>
-                    <i className="btn__arrow" />
-                  </a>
-                </div>
-              </article>
             </div>
           </div>
         </section>
@@ -269,13 +400,36 @@ export default function Home() {
               ["s11", 10, 0.14],
               ["s12", 12, 0.11],
               ["s13", 11, 0.1],
-            ].map(([cls, n, p]) => (
-              <span className={`scatter ${cls}`} key={cls} data-parallax={p}>
-                <span className="scatter__card">
-                  <img src={`/img/scatter-${n}.webp`} alt="" loading="lazy" />
+            ].map(([cls, n, p]) => {
+              // two portraits are short product-demo videos, the rest are stills
+              const video = {
+                2: "portrait-auburn",
+                4: "portrait-african",
+                8: "portrait-arab",
+                10: "portrait-latina",
+              }[n];
+              return (
+                <span className={`scatter ${cls}`} key={cls} data-parallax={p}>
+                  <span className="scatter__card">
+                    {video ? (
+                      <video
+                        poster={`/img/${video}-poster.webp`}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        preload="metadata"
+                      >
+                        <source src={`/video/${video}.webm`} type="video/webm" />
+                        <source src={`/video/${video}.mp4`} type="video/mp4" />
+                      </video>
+                    ) : (
+                      <img src={`/img/scatter-${n}.webp`} alt="" loading="lazy" />
+                    )}
+                  </span>
                 </span>
-              </span>
-            ))}
+              );
+            })}
           </div>
           <p className="quote__mark display" aria-hidden="true">
             &ldquo;
@@ -285,7 +439,7 @@ export default function Home() {
             <span className="glow">authentic</span>{" "}expression. It&rsquo;s
             when you feel simply great about being you.
           </p>
-          <div className="quote__cta">
+          <div className="quote__cta" data-reveal="fade">
             <a href="/#products" className="btn btn--solid">
               <span>Shop the collection</span>
               <i className="btn__arrow" />

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { RIPPLE_SIM_FRAG } from "../lib/waterRipple";
 
 /**
  * Hero background: a living lilac glow-field with the (transparent-cutout)
@@ -31,7 +32,7 @@ export default function Liquid() {
     }
     if (!supported) return;
 
-    let renderer, scene, camera, material, mesh, raf, ro, io;
+    let renderer, scene, camera, material, mesh, raf, ro, io, ripple;
     let disposed = false;
     const mount = mountRef.current;
 
@@ -71,6 +72,12 @@ export default function Liquid() {
         uTex: { value: null },
         uImgAspect: { value: 1.333 },
         uReady: { value: 0 },
+        uBg: { value: null },
+        uBgAspect: { value: 1.586 },
+        uBgReady: { value: 0 },
+        uSim: { value: null },
+        uSimTexel: { value: new THREE.Vector2(1 / 256, 1 / 256) },
+        uRippleReady: { value: 0 },
       };
 
       material = new THREE.ShaderMaterial({
@@ -80,6 +87,46 @@ export default function Liquid() {
       });
       mesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material);
       scene.add(mesh);
+
+      // The Quench heightfield runs separately; only the lilac background
+      // samples it. The portrait texture keeps its original, undistorted UVs.
+      if (renderer.capabilities.isWebGL2) {
+        const size = 256;
+        const rtOpts = {
+          type: THREE.HalfFloatType,
+          minFilter: THREE.LinearFilter,
+          magFilter: THREE.LinearFilter,
+          depthBuffer: false,
+          stencilBuffer: false,
+        };
+        const simMat = new THREE.ShaderMaterial({
+          uniforms: {
+            uPrev: { value: null },
+            uTexel: { value: new THREE.Vector2(1 / size, 1 / size) },
+            uDamping: { value: 0.982 },
+            uMouse: { value: new THREE.Vector2(-9, -9) },
+            uMousePrev: { value: new THREE.Vector2(-9, -9) },
+            uInject: { value: 0 },
+            uRad2: { value: 0.0016 },
+          },
+          vertexShader: VERT,
+          fragmentShader: RIPPLE_SIM_FRAG,
+        });
+        const simScene = new THREE.Scene();
+        const simMesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), simMat);
+        simScene.add(simMesh);
+        ripple = {
+          a: new THREE.WebGLRenderTarget(size, size, rtOpts),
+          b: new THREE.WebGLRenderTarget(size, size, rtOpts),
+          mat: simMat,
+          mesh: simMesh,
+          scene: simScene,
+          target: new THREE.Vector2(-9, -9),
+          prev: new THREE.Vector2(-9, -9),
+          inject: 0,
+        };
+        uniforms.uRippleReady.value = 1;
+      }
 
       setWebgl(true);
 
@@ -98,6 +145,21 @@ export default function Liquid() {
         (err) => console.warn("[Liquid] portrait texture failed:", err)
       );
 
+      new THREE.TextureLoader().load(
+        "/img/hero-dream.webp",
+        (tex) => {
+          tex.minFilter = THREE.LinearFilter;
+          tex.magFilter = THREE.LinearFilter;
+          tex.generateMipmaps = false;
+          uniforms.uBg.value = tex;
+          if (tex.image)
+            uniforms.uBgAspect.value = tex.image.width / tex.image.height;
+          uniforms.uBgReady.value = 1;
+        },
+        undefined,
+        (err) => console.warn("[Liquid] background texture failed:", err)
+      );
+
       // ---- pointer glow bloom ----
       const target = { x: 0.3, y: 0.55 };
       const eased = { x: 0.3, y: 0.55 };
@@ -105,6 +167,21 @@ export default function Liquid() {
         const t = e.touches ? e.touches[0] : e;
         target.x = t.clientX / window.innerWidth;
         target.y = 1 - t.clientY / window.innerHeight;
+        if (ripple) {
+          const r = mount.getBoundingClientRect();
+          const nx = (t.clientX - r.left) / r.width;
+          const ny = 1 - (t.clientY - r.top) / r.height;
+          if (nx < 0 || nx > 1 || ny < 0 || ny > 1) {
+            ripple.target.set(-9, -9);
+          } else {
+            if (ripple.target.x > -1) {
+              const d = Math.hypot(nx - ripple.target.x, ny - ripple.target.y);
+              ripple.inject = Math.min(1.2, ripple.inject + d * 14);
+            }
+            ripple.prev.copy(ripple.target);
+            ripple.target.set(nx, ny);
+          }
+        }
       };
       window.addEventListener("pointermove", onMove, { passive: true });
 
@@ -135,6 +212,22 @@ export default function Liquid() {
         eased.x += (target.x - eased.x) * 0.12;
         eased.y += (target.y - eased.y) * 0.12;
         uniforms.uMouse.value.set(eased.x, eased.y);
+        if (ripple) {
+          const sim = ripple.mat.uniforms;
+          sim.uPrev.value = ripple.a.texture;
+          sim.uMouse.value.copy(ripple.target);
+          sim.uMousePrev.value.copy(ripple.prev.x > -1 ? ripple.prev : ripple.target);
+          sim.uInject.value = ripple.target.x > -1 ? ripple.inject : 0;
+          renderer.setRenderTarget(ripple.b);
+          renderer.render(ripple.scene, camera);
+          renderer.setRenderTarget(null);
+          const old = ripple.a;
+          ripple.a = ripple.b;
+          ripple.b = old;
+          uniforms.uSim.value = ripple.a.texture;
+          ripple.prev.copy(ripple.target);
+          ripple.inject *= 0.6;
+        }
         renderer.render(scene, camera);
         if (!firstRendered) {
           firstRendered = true;
@@ -184,6 +277,13 @@ export default function Liquid() {
         ro && ro.disconnect();
         stopLoop();
         if (uniforms.uTex.value) uniforms.uTex.value.dispose();
+        if (uniforms.uBg.value) uniforms.uBg.value.dispose();
+        if (ripple) {
+          ripple.a.dispose();
+          ripple.b.dispose();
+          ripple.mesh.geometry.dispose();
+          ripple.mat.dispose();
+        }
         mesh && mesh.geometry.dispose();
         material && material.dispose();
         renderer && renderer.dispose();
@@ -227,12 +327,23 @@ const VERT = /* glsl */ `
 const FRAG = /* glsl */ `
   precision highp float;
   varying vec2 vUv;
-  uniform float uTime, uScroll, uImgAspect, uReady;
-  uniform vec2 uRes, uMouse;
-  uniform sampler2D uTex;
+  uniform float uTime, uScroll, uImgAspect, uReady, uBgAspect, uBgReady, uRippleReady;
+  uniform vec2 uRes, uMouse, uSimTexel;
+  uniform sampler2D uTex, uBg, uSim;
 
   float blob(vec2 uv, vec2 c, float r){ float d = distance(uv,c); return exp(-(d*d)/r); }
   float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+  float noise(vec2 p){
+    vec2 i = floor(p), f = fract(p);
+    vec2 u = f*f*(3.0-2.0*f);
+    return mix(mix(hash(i), hash(i+vec2(1.0,0.0)), u.x),
+               mix(hash(i+vec2(0.0,1.0)), hash(i+vec2(1.0,1.0)), u.x), u.y);
+  }
+  float fbm(vec2 p){
+    float v = 0.0, a = 0.5;
+    for (int i=0;i<4;i++){ v += a*noise(p); p *= 2.0; a *= 0.5; }
+    return v;
+  }
   vec2 coverUv(vec2 uv, float boxA, float imgA){
     vec2 r = uv - 0.5;
     if (boxA > imgA) r.y *= imgA / boxA; else r.x *= boxA / imgA;
@@ -243,73 +354,48 @@ const FRAG = /* glsl */ `
     vec2 uv = vUv;
     float aspect = uRes.x / uRes.y;
     vec2 p = uv; p.x *= aspect;
-    float t = uTime * 1.15;  // background motion clock (faster, clearly perceptible)
-
-    // ---- drifting lilac light-pools behind her (travel noticeably) ----
-    float f = 0.0;
-    f += blob(p, vec2(aspect*(0.22 + 0.16*sin(t*0.50)),       0.55 + 0.18*cos(t*0.40)), 0.17);
-    f += blob(p, vec2(aspect*(0.10 + 0.14*cos(t*0.45 + 1.0)), 0.28 + 0.16*sin(t*0.55)), 0.14) * 0.9;
-    f += blob(p, vec2(aspect*(0.30 + 0.15*sin(t*0.40 + 2.0)), 0.82 + 0.13*cos(t*0.50)), 0.13) * 0.85;
-    f += blob(p, vec2(aspect*(0.86 + 0.13*cos(t*0.48)),       0.42 + 0.17*sin(t*0.44)), 0.15) * 0.85;
-    f += blob(p, vec2(aspect*(0.72 + 0.15*sin(t*0.42 + 0.5)), 0.80 + 0.14*cos(t*0.60)), 0.13) * 0.8;
     vec2 m = uMouse; m.x *= aspect;
-    f += blob(p, m, 0.06) * 0.5;
 
-    float v = clamp(f, 0.0, 1.6);
-
-    // ================= animated lavender BACKGROUND =================
-    // her cut-out sits on top of this; the field drifts behind her, echoing
-    // the soft lilac studio backdrop but alive.
-    vec3 lavMid  = vec3(0.66, 0.55, 0.79);
-    vec3 lavHi   = vec3(0.87, 0.80, 0.93);
-    vec3 lavDeep = vec3(0.47, 0.35, 0.66);
-    vec3 bg = mix(lavDeep, lavMid, smoothstep(-0.10, 0.90, uv.y)); // soft vertical base
-    bg = mix(bg, lavHi, smoothstep(0.10, 0.95, v) * 0.7);          // gentle drifting pools
-
-    // dappled light slowly drifting across the lavender (like sun through
-    // leaves) — the main, clearly-visible background motion.
-    float d1 = sin(uv.x * 4.0 + t * 0.9 + sin(uv.y * 3.5 + t * 0.6) * 2.5);
-    float d2 = sin(uv.y * 4.5 - t * 0.7 + cos(uv.x * 4.0 - t * 0.5) * 2.2);
-    float dap = 0.5 + 0.5 * (d1 * 0.55 + d2 * 0.45);
-    dap = smoothstep(0.18, 0.9, dap);                              // crisper dapples
-    bg = mix(bg, lavDeep, (1.0 - dap) * 0.30);                     // drifting shadows
-    bg = mix(bg, lavHi,   dap * 0.20);                             // drifting light
-
-    // ---- iridescent prism rays (soft pastel suncatcher) ----
-    // soft diagonal spectral streaks flow in from the left, gently warped so
-    // they drift like refracted light; each band carries a different hue.
-    // flowing, water-like domain warp (layered sines → organic ribbons that
-    // bend and drift rather than straight lines)
-    // layered, strongly-warped flow so the shapes read as organic liquid
-    // forms rather than straight bands
-    float w1 = sin(uv.x * 2.8 + t * 0.55 + sin(uv.y * 2.4 - t * 0.38) * 2.6);
-    float w2 = sin(uv.y * 3.2 - t * 0.48 + cos(uv.x * 2.1 + t * 0.34) * 2.4);
-    float w3 = sin((uv.x + uv.y) * 2.0 + t * 0.30 + sin(uv.x * 2.7 - uv.y * 1.8) * 2.2);
-    float w4 = sin((uv.x - uv.y) * 2.6 - t * 0.26 + cos(uv.y * 3.1 + t * 0.2) * 2.0);
-    float flow = w1 * 0.42 + w2 * 0.28 + w3 * 0.18 + w4 * 0.12;    // richly warped flow field
-    float rayCoord = (uv.x * 0.5 - uv.y * 0.4) * 3.0 + flow * 6.0; // flow dominates → organic shapes
-    float ray = 0.5 + 0.5 * sin(rayCoord);                        // curvy, liquid ribbons
-    ray = pow(ray, 2.4);                                          // defined, soft-edged forms
-    // spectral colour cycles along the ribbons (rainbow separation)
-    vec3 spectrum = 0.5 + 0.5 * cos(6.28318 * (vec3(0.0, 0.33, 0.67) + rayCoord * 0.42 + t * 0.1));
-    spectrum = mix(vec3(0.97, 0.95, 1.0), spectrum, 0.78);        // saturated but still pastel
-    float irMask = ray * 0.72;                                    // ribbon intensity (knob)
-    irMask *= smoothstep(1.25, -0.1, uv.x);                       // strongest on the left, fading across
-    bg = 1.0 - (1.0 - bg) * (1.0 - spectrum * irMask);            // screen-blend the spectral light
-
-    bg = mix(bg, lavDeep, uScroll * 0.06);
+    // ================= BACKGROUND: purple-dream gradient image =======
+    // The Quench ripple normals and slow flow refract only the lilac image.
+    // Her cut-out is sampled separately below, with untouched coordinates.
+    vec2 buv = coverUv(uv, aspect, uBgAspect);
+    vec3 waterN = vec3(0.0, 0.0, 1.0);
+    vec2 liquidOffset = vec2(0.0);
+    if (uRippleReady > 0.5) {
+      float hL = texture2D(uSim, uv - vec2(uSimTexel.x,0.0)).r;
+      float hR = texture2D(uSim, uv + vec2(uSimTexel.x,0.0)).r;
+      float hD = texture2D(uSim, uv - vec2(0.0,uSimTexel.y)).r;
+      float hU = texture2D(uSim, uv + vec2(0.0,uSimTexel.y)).r;
+      waterN = normalize(vec3(hL-hR, hD-hU, 0.28));
+      vec2 fuv = vec2(uv.x * aspect, uv.y) * 1.6;
+      float flow = fbm(fuv + vec2(uTime * 0.02, uTime * 0.015));
+      flow += 0.25 * fbm(fuv * 2.0 - uTime * 0.01);
+      liquidOffset = waterN.xy * 0.025
+        + vec2(flow - 0.48, fbm(fuv + 9.0 + uTime * 0.012) - 0.48) * 0.018;
+    }
+    vec3 bgImg = texture2D(uBg, buv + liquidOffset).rgb;
+    vec3 bg = mix(vec3(0.74, 0.65, 0.84), bgImg, uBgReady); // lilac until loaded
+    if (uRippleReady > 0.5) {
+      float refr = (waterN.x + waterN.y) * 0.5;
+      bg += vec3(0.16, 0.12, 0.19) * refr;
+      float spec = pow(max(dot(waterN, normalize(vec3(0.5,0.6,0.8))), 0.0), 16.0);
+      bg += vec3(1.0, 0.98, 1.0) * spec * 0.18;
+    }
+    bg += (bg) * blob(p, m, 0.10) * 0.12;                   // soft cursor lift
+    bg = mix(bg, bg * 0.9, uScroll * 0.12);                 // settle slightly on scroll
 
     // ================= foreground: her transparent cut-out ===========
     vec2 puv = coverUv(uv, aspect, uImgAspect);
+    puv.y -= 0.05; // crop more from the top, revealing more of the lower portrait
     vec4 tex = texture2D(uTex, vec2(puv.x, puv.y));
     float ready = uReady;
     float a = clamp(tex.a, 0.0, 1.0) * ready;                     // her silhouette (alpha)
     vec3 her = tex.rgb;
     float lum = dot(her, vec3(0.299, 0.587, 0.114));
 
-    // tame her high-key exposure so skin reads with depth, not washed-out
-    vec3 herCol = her * 0.82;
-    herCol = pow(clamp(herCol, 0.0, 1.0), vec3(1.10));
+    // show her at her true exposure — no dimming, no wash
+    vec3 herCol = clamp(her, 0.0, 1.0);
 
     // ---- ONE soft highlight that travels continuously across her ----
     float phase = fract(uTime * 0.09);
@@ -338,12 +424,6 @@ const FRAG = /* glsl */ `
 
     // ================= composite her over the moving field ===========
     vec3 col = mix(bg, herCol, a);
-
-    // ---- subtle veil behind the heading (left) for text contrast ----
-    // only lifts the DARK areas (e.g. hair) toward a soft lilac so the dark
-    // navy heading stays legible; bright areas are left untouched.
-    float veil = (1.0 - smoothstep(0.52, 0.82, uv.x)) * 0.192 * ready;
-    col = mix(col, max(col, vec3(0.88, 0.83, 0.92)), veil);
 
     gl_FragColor = vec4(col, 1.0);
   }

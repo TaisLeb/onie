@@ -47,9 +47,9 @@ export default function Nav({ heroOverlay = false }) {
   return (
     <header ref={headerRef} className={`nav${menuOpen ? " nav--open" : ""}${heroOverlay && overHero ? " nav--hero" : ""}`}>
       <nav className="nav__side" aria-label="Primary">
-        <Link href="/" className="nav__link">Home</Link>
-        <Link href="/#products" className="nav__link">Shop</Link>
-        <Link href="/about" className="nav__link">About</Link>
+        <Link href="/" className="nav__link type--scroll">Home</Link>
+        <Link href="/#products" className="nav__link type--scroll">Shop</Link>
+        <Link href="/about" className="nav__link type--scroll">About</Link>
       </nav>
 
       <button
@@ -69,14 +69,14 @@ export default function Nav({ heroOverlay = false }) {
       </Link>
 
       <div className="nav__side nav__side--right">
-        <Link href="/#contact" className="nav__link">Contact</Link>
+        <Link href="/#contact" className="nav__link type--scroll">Contact</Link>
         <CartLink />
       </div>
 
       {menuOpen && (
         <nav id="mobile-primary-menu" className="nav__dropdown" aria-label="Mobile primary">
           {mobileLinks.map(([label, href]) => (
-            <Link key={label} href={href} className="nav__dropdown-link" onClick={() => setMenuOpen(false)}>
+            <Link key={label} href={href} className="nav__dropdown-link type--scroll" onClick={() => setMenuOpen(false)}>
               {label}
             </Link>
           ))}

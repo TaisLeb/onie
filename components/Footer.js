@@ -7,7 +7,7 @@ export default function Footer() {
       <span className="footer__aura" aria-hidden="true" />
       <div className="wrap">
         <div className="footer__top">
-          <div className="footer__social">
+          <div className="footer__social" data-reveal="fade">
             <a href="#" aria-label="YouTube">
               <IconYoutube />
             </a>

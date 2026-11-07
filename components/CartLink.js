@@ -28,7 +28,7 @@ export default function CartLink() {
   return (
     <Link
       href="/cart"
-      className="nav__link nav__cart"
+      className="nav__link nav__cart type--scroll"
       aria-label={`Cart${count ? `, ${count} item${count > 1 ? "s" : ""}` : ""}`}
     >
       Cart

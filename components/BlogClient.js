@@ -105,6 +105,7 @@ export default function BlogClient() {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     let activeEffect = true;
     const splits = [];
+    const mediaTweens = [];
     Promise.all([
       import("gsap"),
       import("gsap/ScrollTrigger"),
@@ -130,11 +131,18 @@ export default function BlogClient() {
           }),
         }));
       });
+      document.querySelectorAll(".blog__list .post__media").forEach((el) => {
+        mediaTweens.push(gsap.from(el, {
+          autoAlpha: 0, y: 36, duration: 0.85, ease: "power3.out",
+          scrollTrigger: { trigger: el, start: "top 85%", once: true },
+        }));
+      });
       ScrollTrigger.refresh();
     });
     return () => {
       activeEffect = false;
       splits.forEach((split) => split.revert());
+      mediaTweens.forEach((tween) => tween.revert());
     };
   }, [active, showAll]);
 

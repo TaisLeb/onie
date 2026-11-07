@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { RIPPLE_SIM_FRAG } from "../lib/waterRipple";
 
 /**
  * Subtle interactive water surface for the Featured Product lilac panel.
@@ -67,7 +68,7 @@ export default function Water() {
           uRad2: { value: 0.0016 },
         },
         vertexShader: VERT,
-        fragmentShader: SIM_FRAG,
+        fragmentShader: RIPPLE_SIM_FRAG,
       });
       simMesh = new THREE.Mesh(quad, simMat);
       simScene = new THREE.Scene();
@@ -188,42 +189,6 @@ const VERT = /* glsl */ `
   void main(){ vUv = uv; gl_Position = vec4(position, 1.0); }
 `;
 
-const SIM_FRAG = /* glsl */ `
-  precision highp float;
-  varying vec2 vUv;
-  uniform sampler2D uPrev;
-  uniform vec2 uTexel, uMouse, uMousePrev;
-  uniform float uDamping, uInject, uRad2;
-
-  // distance from p to segment a-b
-  float segDist(vec2 p, vec2 a, vec2 b){
-    vec2 pa = p - a, ba = b - a;
-    float t = clamp(dot(pa, ba) / max(dot(ba, ba), 1e-6), 0.0, 1.0);
-    return length(pa - ba * t);
-  }
-
-  void main(){
-    vec4 s = texture2D(uPrev, vUv);
-    float h = s.r, hp = s.g;
-    float sum =
-        texture2D(uPrev, vUv + vec2( uTexel.x, 0.0)).r
-      + texture2D(uPrev, vUv + vec2(-uTexel.x, 0.0)).r
-      + texture2D(uPrev, vUv + vec2(0.0,  uTexel.y)).r
-      + texture2D(uPrev, vUv + vec2(0.0, -uTexel.y)).r;
-    float next = sum * 0.5 - hp;
-    next *= uDamping;
-
-    // inject a gentle wake along the pointer's movement this frame
-    if (uInject > 0.001 && uMouse.x > -1.0) {
-      float d = segDist(vUv, uMousePrev, uMouse);
-      next += uInject * 0.5 * exp(-d * d / uRad2);
-    }
-
-    next = clamp(next, -1.5, 1.5); // stability guard
-    gl_FragColor = vec4(next, h, 0.0, 1.0);
-  }
-`;
-
 const DISP_FRAG = /* glsl */ `
   precision highp float;
   varying vec2 vUv;
@@ -259,9 +224,9 @@ const DISP_FRAG = /* glsl */ `
     flow += 0.25 * fbm(fuv * 2.0 - uTime * 0.01);
 
     // lilac palette (kept close in value so the copy stays readable)
-    vec3 lilacLo = vec3(0.808, 0.729, 0.831);   // ~#ceba d4 panel base
-    vec3 lilacMid= vec3(0.867, 0.769, 0.863);   // #ddc4dc
-    vec3 lilacHi = vec3(0.925, 0.871, 0.945);   // light lilac
+    vec3 lilacLo = vec3(202.0, 169.0, 246.0) / 255.0;  // #CAA9F6
+    vec3 lilacMid= vec3(211.0, 182.0, 251.0) / 255.0;  // #D3B6FB
+    vec3 lilacHi = vec3(220.0, 192.0, 255.0) / 255.0;  // #DCC0FF
     vec3 col = mix(lilacLo, lilacMid, smoothstep(0.2, 0.8, flow));
     col = mix(col, lilacHi, smoothstep(0.7, 1.05, flow) * 0.5);
 

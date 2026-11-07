@@ -1,5 +1,6 @@
 import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
+import GridOverlay from "@/components/GridOverlay";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -45,7 +46,10 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${fraunces.variable} ${inter.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <GridOverlay />
+      </body>
     </html>
   );
 }
