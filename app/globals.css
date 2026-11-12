@@ -691,9 +691,10 @@ img {
 }
 .hero__lede {
   max-width: 34ch;
-  font-size: clamp(0.95rem, 1.2vw, 1.1rem);
-  line-height: 1.55;
-  color: var(--ink);
+  /* match .spotlight__desc / .story__body typography */
+  font-size: clamp(0.95rem, 1.1vw, 1.05rem);
+  line-height: 1.6;
+  color: var(--ink-soft);
 }
 .hero__lede-mobile {
   display: none;
@@ -750,7 +751,7 @@ img {
   .hero__lede {
     width: 13.05rem;
     max-width: 100%;
-    font-size: clamp(0.9rem, 1.1vw, 1.05rem);
+    font-size: clamp(0.95rem, 1.1vw, 1.05rem);
   }
   .hero__scroll {
     position: absolute;
@@ -1527,9 +1528,10 @@ img {
 .story__title em { font-style: normal; }
 .story__body {
   margin-top: 1.6rem;
-  color: var(--ink);
-  font-size: clamp(0.92rem, 1.1vw, 1.08rem);
-  line-height: 1.5;
+  /* match .spotlight__desc exactly */
+  color: var(--ink-soft);
+  font-size: clamp(0.95rem, 1.1vw, 1.05rem);
+  line-height: 1.6;
 }
 .story__body + .story__body { margin-top: 0.9rem; }
 .story__cta {
@@ -3462,9 +3464,9 @@ img {
   }
   .hero__lede {
     max-width: none;
-    color: #100a17;
-    font-size: clamp(0.82rem, 3.6vw, 1.1rem);
-    line-height: 1.45;
+    color: var(--ink-soft);
+    font-size: clamp(0.95rem, 1.1vw, 1.05rem);
+    line-height: 1.6;
   }
   .hero__lede-desktop {
     display: none;
@@ -3539,8 +3541,7 @@ img {
   }
   .pdp__desc,
   .pdp__ed-body,
-  .about__body,
-  .story__body {
+  .about__body {
     font-size: 1rem;
   }
   .rev__author {
@@ -3940,7 +3941,7 @@ img {
   .story__body {
     margin-top: 1.35rem;
     padding-bottom: 2.2rem;
-    line-height: 1.45;
+    line-height: 1.6;
   }
 
   /* The comparison and its results follow the two captions on phones. */
