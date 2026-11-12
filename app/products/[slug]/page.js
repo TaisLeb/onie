@@ -214,17 +214,28 @@ export default async function ProductPage({ params }) {
           </div>
           <div className="pdp__ed-stage" data-reveal="fade">
             <div className="pdp__ed-photo" data-parallax="0.04">
-              <img
-                src="/img/story-woman.jpg"
-                alt="Onie Beauty ritual"
-                loading="lazy"
-              />
+              {p.slug === "nourish" ? (
+                <video
+                  className="pdp__ed-video"
+                  poster="/img/gel-cream-poster.webp?v=2"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  aria-label="Applying the nourish gel-cream"
+                >
+                  <source src="/video/gel-cream.webm?v=2" type="video/webm" />
+                  <source src="/video/gel-cream.mp4?v=2" type="video/mp4" />
+                </video>
+              ) : (
+                <img
+                  src="/img/story-woman.jpg"
+                  alt="Onie Beauty ritual"
+                  loading="lazy"
+                />
+              )}
             </div>
-            {p.slug === "nourish" && (
-              <div className="pdp__ed-swatch" data-parallax="0.42">
-                <img src="/img/mint-swatch.webp" alt="" loading="lazy" />
-              </div>
-            )}
             <span className="pdp__ed-ings" aria-hidden="true" data-parallax="0.24">
               <img className="ei ei--1" src={p.behind[1]} alt="" loading="lazy" />
               <img className="ei ei--2" src={p.behind[2]} alt="" loading="lazy" />

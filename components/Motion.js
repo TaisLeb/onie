@@ -107,7 +107,7 @@ export default function Motion() {
                 autoSplit: true,
                 onSplit: ({ lines }) => {
                   const entrance = {
-                    yPercent: 115,
+                    yPercent: 130,
                     duration: 1.1,
                     ease: "power4.out",
                     stagger: 0.08,
@@ -139,7 +139,7 @@ export default function Motion() {
                 linesClass: "site-reveal-line",
                 autoSplit: true,
                 onSplit: ({ lines }) => {
-                  gsap.set(lines, { yPercent: storyRevealed.has(index) ? 0 : 115 });
+                  gsap.set(lines, { yPercent: storyRevealed.has(index) ? 0 : 130 });
                 },
               });
               splitTexts.push(split);
@@ -171,7 +171,7 @@ export default function Motion() {
           gsap.utils.toArray("[data-reveal='lines']").forEach((el) => {
             if (reduce) return;
             const spans = el.querySelectorAll(".reveal-line > span");
-            gsap.set(spans, { yPercent: 115 });
+            gsap.set(spans, { yPercent: 130 });
             ScrollTrigger.create({
               trigger: el,
               start: "top 85%",
@@ -230,7 +230,7 @@ export default function Motion() {
                     type: "lines", mask: "lines", autoSplit: true,
                     linesClass: "site-reveal-line",
                     onSplit: ({ lines }) => {
-                      gsap.set(lines, { yPercent: revealed.has(index) ? 0 : 115 });
+                      gsap.set(lines, { yPercent: revealed.has(index) ? 0 : 130 });
                     },
                   });
                   splitTexts.push(split);
@@ -610,7 +610,7 @@ export default function Motion() {
                 gsap.set([lineAEl, lineBEl], { autoAlpha: 1, y: 0 });
                 // centred third line keeps its own translate via xPercent/yPercent
                 if (lineCEl) gsap.set(lineCEl, { autoAlpha: 1, xPercent: -50, yPercent: -50, y: 0 });
-                gsap.set([...linesA, ...linesB, ...linesC], { yPercent: 115 });
+                gsap.set([...linesA, ...linesB, ...linesC], { yPercent: 130 });
 
                 // ---- meadow: three states tied to scroll, each showing its own
                 // clip:
