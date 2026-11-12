@@ -44,26 +44,15 @@ export default function GridOverlay({ columns = 12 }) {
     return next;
   };
 
+  // No visible button on the site — toggle the dev grid with the "G" key.
+  if (!on) return null;
   return (
-    <>
-      <button
-        type="button"
-        className="grid-overlay__btn"
-        onClick={() => setOn((v) => persist(!v))}
-        aria-pressed={on}
-        title="Toggle layout grid (G)"
-      >
-        grid
-      </button>
-      {on && (
-        <div className="grid-overlay" aria-hidden="true">
-          <div className="grid-overlay__wrap">
-            {Array.from({ length: columns }).map((_, i) => (
-              <span key={i} />
-            ))}
-          </div>
-        </div>
-      )}
-    </>
+    <div className="grid-overlay" aria-hidden="true">
+      <div className="grid-overlay__wrap">
+        {Array.from({ length: columns }).map((_, i) => (
+          <span key={i} />
+        ))}
+      </div>
+    </div>
   );
 }
